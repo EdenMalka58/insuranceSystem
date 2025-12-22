@@ -1,0 +1,111 @@
+﻿
+body {
+  background: #f4f6f9;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+/* Dashboard Styles */
+.card {
+  border: 0;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stats-card {
+  cursor: pointer;
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.stats-icon {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.activity-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.activity-item {
+  cursor: pointer;
+  padding: 12px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.activity-item:hover {
+  background-color: #f8f9fa;
+}
+
+.card-header {
+  background: white;
+  border-bottom: 1px solid #e9ecef;
+  font-weight: 600;
+  padding: 1rem 1.25rem;
+}
+
+canvas {
+  cursor: pointer;
+}
+
+.table-hover tbody tr {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+#yearSelector {
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  border: 1px solid #dee2e6;
+  cursor: pointer;
+}
+
+.display-5 {
+  font-weight: 600;
+  font-size: 2rem;
+}
+
+/*Statistic styles*/
+.dashboard-header {
+  background: #1f2937;
+  color: #fff;
+  padding: 20px;
+}
+
+.card {
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0,0,0,.08);
+}
+
+.card-title {
+  font-weight: 600;
+}
+
+canvas {
+  cursor: pointer;
+}
+
+.drilldown-modal pre {
+  max-height: 500px;
+  overflow-y: auto;
+  background: #111827;
+  color: #d1d5db;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+
+.policy-card i {
+  display: none;
+}

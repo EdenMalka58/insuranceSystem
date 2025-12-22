@@ -1,0 +1,294 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Damage Inspector</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <script type='text/javascript' src='/js/script.js?v=2'></script>
+  <script type='text/javascript' src='/js/agent.js?v=2'></script>
+  <link href="/css/style.css?v=2" rel="stylesheet">
+  <link href="/css/agent.css?v=2" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fa-solid fa-car-burst me-2"></i>Damage Inspector</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Features</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="text-center">
+        <div class="container">
+            <h1 class="mb-4 display-4 fw-bold mt-2"><i class="fas fa-shield-alt"></i> Insurance Policy Management</h1>
+        </div>
+    </header>
+
+    <main class="container my-5">
+      <div class="container-fluid">
+        <!-- Search and Add Section -->
+        <div id="searchSection" class="search-box">
+          <div class="row align-items-end">
+            <div class="col-md-6">
+              <label for="searchInput" class="form-label">Search Policy</label>
+              <input type="text" class="form-control" id="searchInput" placeholder="Enter policy number or ID number">
+            </div>
+            <div class="col-md-4">
+              <button class="btn btn-primary w-100" onclick="searchPolicies()">
+                <i class="fas fa-search"></i> Search
+              </button>
+            </div>
+            <div class="col-md-2">
+              <button class="btn btn-light" onclick="showAddPolicy()">
+                <i class="fas fa-plus"></i> Add Policy
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Policies List -->
+        <div id="policiesSection">
+          <h3 class="mb-3">Policies List</h3>
+          <div id="policiesList"></div>
+        </div>
+
+        <!-- Add/Edit Policy Form -->
+        <div id="policyFormSection" style="display: none;">
+          <div class="form-panel">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h3 id="formTitle">Add New Policy</h3>
+              <button class="btn btn-secondary" onclick="cancelForm()">
+                <i class="fas fa-times"></i> Cancel
+              </button>
+            </div>
+
+            <form id="policyForm">
+              <input type="hidden" id="policyId">
+
+              <h5 class="mt-4 mb-3"><i class="fas fa-file-contract"></i> Policy Details</h5>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="policyNumber" class="form-label">Policy Number <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="policyNumber" required>
+                </div>
+              </div>
+
+              <h5 class="mt-4 mb-3"><i class="fas fa-user"></i> Insured Details</h5>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="insuredName" class="form-label">Full Name <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="insuredName" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="insuredId" class="form-label">ID Number <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="insuredId" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="insuredEmail" class="form-label">Email <span class="text-danger">*</span></label>
+                  <input type="email" class="form-control" id="insuredEmail" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="insuredPhone" class="form-label">Phone <span class="text-danger">*</span></label>
+                  <input type="tel" class="form-control" id="insuredPhone" required>
+                </div>
+              </div>
+
+              <h5 class="mt-4 mb-3"><i class="fas fa-car"></i> Vehicle Details</h5>
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <label for="vehicleModel" class="form-label">Vehicle Model <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="vehicleModel" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label for="vehicleYear" class="form-label">Year <span class="text-danger">*</span></label>
+                  <input type="number" class="form-control" id="vehicleYear" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label for="plateNumber" class="form-label">Plate Number <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="plateNumber" required>
+                </div>
+              </div>
+
+              <h5 class="mt-4 mb-3"><i class="fas fa-calendar-alt"></i> Validity and Values</h5>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="validityStart" class="form-label">Start Date <span class="text-danger">*</span></label>
+                  <input type="date" class="form-control" id="validityStart" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="validityEnd" class="form-label">End Date <span class="text-danger">*</span></label>
+                  <input type="date" class="form-control" id="validityEnd" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="insuredValue" class="form-label">Insured Value $<span class="text-danger">*</span></label>
+                  <input type="number" class="form-control" id="insuredValue" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="deductibleValue" class="form-label">Deductible Value $<span class="text-danger">*</span></label>
+                  <input type="number" class="form-control" id="deductibleValue" required>
+                </div>
+              </div>
+
+              <div class="mt-4">
+                <button type="submit" class="btn btn-primary btn-lg" id="save-policy-btn">
+                  <i class="fas fa-save"></i> Save Policy
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Claim Modal -->
+      <div class="modal fade" id="claimModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title"><i class="fas fa-file-medical"></i> Open New Claim</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <form id="claimForm">
+                <input type="hidden" id="claimPolicyNumber">
+                <div class="mb-3">
+                  <label for="claimNumber" class="form-label">Claim Number <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="claimNumber" required>
+                </div>
+                <div class="mb-3">
+                  <label for="claimDate" class="form-label">Claim Date <span class="text-danger">*</span></label>
+                  <input type="date" class="form-control" id="claimDate" required>
+                </div>
+                <div class="mb-3">
+                  <label for="claimDescription" class="form-label">Description <span class="text-danger">*</span></label>
+                  <textarea class="form-control" id="claimDescription" rows="4" required></textarea>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-primary" id="save-claim-btn" onclick="submitClaim()">Save Claim</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delete Confirmation Modal -->
+      <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Confirm Deletion</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <p>Are you sure you want to delete policy <strong id="deletePolicyNumber"></strong>?</p>
+              <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-danger" id="delete-policy-btn" onclick="confirmDelete()">Delete Policy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Claims List Modal -->
+      <div class="modal fade" id="claimsListModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title"><i class="fas fa-list"></i> Policy Claims</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <div id="claimsListContent">
+                <div class="text-center">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Approve Claim Confirmation Modal -->
+      <div class="modal fade" id="approveClaimModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title"><i class="fa-solid fa-thumbs-up"></i> Confirm claim approve</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <p>Are you sure you want to approve claim <strong id="approveCliamNumber"></strong> for <strong id="approveClaimValue"></strong> ?</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-warning" id="delete-policy-btn" onclick="confirmClaimApprove()">Approve Claim</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alert Modal (Replaces JS alerts) -->
+      <div class="modal fade" id="alertModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="alertModalTitle">Notification</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <div id="alertModalContent"></div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+    <footer>
+        
+    </footer>
+
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Load policies on page load
+        $(document).ready(function () {
+            loadPolicies();
+
+            $('#policyForm').on('submit', function (e) {
+                e.preventDefault();
+                savePolicy();
+            });
+
+            $('#searchInput').on('keypress', function (e) {
+                if (e.which === 13) {
+                    searchPolicies();
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

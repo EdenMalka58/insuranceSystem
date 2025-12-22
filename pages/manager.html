@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Damage Inspector</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type='text/javascript' src='/js/script.js?v=2'></script>
+  <script type='text/javascript' src='/js/manager.js?v=2'></script>
+  <link href="/css/style.css?v=2" rel="stylesheet">
+  <link href="/css/manager.css?v=2" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="#"><i class="fa-solid fa-car-burst me-2"></i>Damage Inspector</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Features</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <header class="text-center">
+    <div class="container mb-4">
+      <h1 class="display-4 fw-bold mt-2"><i class="fas fa-chart-line"></i> Insurance Dashboard</h1>
+      <div class="text-center" id="dashboard-loader">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container my-5">
+    <div class="container-fluid">
+
+      <!-- Counters boxes -->
+      <div class="row g-4 mb-4" id="countersRow"></div>
+
+      <!-- Chart and Activity -->
+      <div class="row g-4">
+        <!-- Main chart -->
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-header">
+              <div class="row">
+                <div class="col">
+                  <h5 class="mb-0"><i class="fa-solid fa-chart-line"></i> Claims Overview</h5>
+                </div>
+                <div class="col-auto">
+                  <select id="yearSelector" class="form-select"></select>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <canvas id="claimsChart" height="100"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity sidebar -->
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0"><i class="fa-solid fa-clock-rotate-left"></i> Recent Activity</h5>
+            </div>
+            <div class="card-body p-0">
+              <div id="activityList"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- details table -->
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0"><i class="fa-solid fa-list"></i> Details</h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-hover" id="detailsTable">
+                  <thead>
+                    <tr id="detailsHeader"></tr>
+                  </thead>
+                  <tbody id="detailsBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drilldown modal -->
+    <div class="modal fade drilldown-modal" id="drilldownModal" tabindex="-1">
+      <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="drilldownModalTitle">Claim details</h5>
+            <button class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div id="drilldownModalContent">
+              <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+  <footer>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Load statistics on page load
+    $(document).ready(function () {
+      initYearSelector();
+      loadDashboard();
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Insurance Admin Dashboard</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      background: #f4f6f9;
+    }
+
+    .card-counter {
+      cursor: pointer;
+    }
+
+    .card-counter:hover {
+      opacity: 0.9;
+    }
+
+    .activity-item {
+      cursor: pointer;
+    }
+
+    .activity-item:hover {
+      background: #f1f1f1;
+    }
+
+    canvas {
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container-fluid p-4">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2><i class="fa-solid fa-chart-line"></i> Admin Statistics</h2>
+
+      <select id="yearSelector" class="form-select w-auto"></select>
+    </div>
+
+    <!-- TOP COUNTERS -->
+    <div class="row" id="countersRow"></div>
+
+    <!-- MAIN CONTENT -->
+    <div class="row mt-4">
+
+      <!-- MAIN GRAPH -->
+      <div class="col-lg-8">
+        <div class="card shadow-sm">
+          <div class="card-header fw-bold">Claims Overview</div>
+          <div class="card-body">
+            <canvas id="claimsChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIVITY -->
+      <div class="col-lg-4">
+        <div class="card shadow-sm">
+          <div class="card-header fw-bold">Activity</div>
+          <ul class="list-group list-group-flush" id="activityList"></ul>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- DETAILS -->
+    <div class="card shadow-sm mt-4">
+      <div class="card-header fw-bold">Details</div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped" id="detailsTable">
+            <thead>
+              <tr id="detailsHeader"></tr>
+            </thead>
+            <tbody id="detailsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- JS -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const BASE_API = "https://azy4fomrz8.execute-api.us-east-1.amazonaws.com/prod";
+    let chartInstance = null;
+
+    $(document).ready(() => {
+      initYearSelector();
+      loadDashboard();
+    });
+
+    function initYearSelector() {
+      const year = new Date().getFullYear();
+      for (let i = 0; i < 3; i++) {
+        $("#yearSelector").append(`<option value="${year - i}">${year - i}</option>`);
+      }
+
+      $("#yearSelector").change(loadDashboard);
+    }
+
+    function loadDashboard() {
+      const year = $("#yearSelector").val();
+
+      $.ajax({
+        url: `${BASE_API}/dashboard?year=${year}`,
+        headers: authHeader(),
+        success: data => {
+          buildCounters(data.counters);
+          buildChart(data.claimsOverview, year);
+          buildActivity(data.activity);
+        }
+      });
+    }
+
+    /* -------------------- UI BUILDERS -------------------- */
+
+    function buildCounters(counters) {
+      $("#countersRow").empty();
+
+      counters.forEach(c => {
+        $("#countersRow").append(`
+              <div class="col-md-3 mb-3">
+                  <div class="card card-counter bg-${c.color} text-white p-3"
+                       onclick="loadDrilldown('${c.drilldown.type}','${c.drilldown.value || ""}')">
+                      <h6>${c.title}</h6>
+                      <h3>${c.count}</h3>
+                      <small>Amount: ${c.amount.toLocaleString()}</small>
+                  </div>
+              </div>
+          `);
+      });
+    }
+
+    function buildChart(chartData, year) {
+      const ctx = document.getElementById("claimsChart");
+
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
+        type: chartData.type,
+        data: {
+          labels: chartData.labels,
+          datasets: chartData.datasets
+        },
+        options: {
+          responsive: true,
+          onClick: (evt, elements) => {
+            if (!elements.length) return;
+            const index = elements[0].index;
+            const dataset = chartData.datasets[elements[0].datasetIndex];
+            const month = String(index + 1).padStart(2, "0");
+
+            loadDrilldown(dataset.drilldownType, month);
+          }
+        }
+      });
+    }
+
+    function buildActivity(activity) {
+      $("#activityList").empty();
+
+      activity.forEach(a => {
+        $("#activityList").append(`
+              <li class="list-group-item activity-item"
+                  onclick="loadDrilldown('${a.type}')">
+                  <span class="badge bg-${a.color} me-2">&nbsp;</span>
+                  ${a.label} (${a.count})
+              </li>
+          `);
+      });
+    }
+
+    /* -------------------- DRILLDOWN -------------------- */
+
+    function loadDrilldown(type, value = "") {
+      const year = $("#yearSelector").val();
+
+      $.ajax({
+        url: `${BASE_API}/dashboard/drilldown?type=${type}&value=${value}&year=${year}`,
+        headers: authHeader(),
+        success: data => renderDetailsTable(data)
+      });
+    }
+
+    function renderDetailsTable(data) {
+      $("#detailsHeader").empty();
+      $("#detailsBody").empty();
+
+      if (!data.length) {
+        $("#detailsBody").append("<tr><td>No data</td></tr>");
+        return;
+      }
+
+      const keys = Object.keys(data[0]).filter(k => !["PK", "SK", "entityType"].includes(k));
+
+      keys.forEach(k => $("#detailsHeader").append(`<th>${k}</th>`));
+
+      data.forEach(row => {
+        let tr = "<tr>";
+        keys.forEach(k => {
+          let val = row[k];
+          if (typeof val === "object") val = JSON.stringify(val);
+          tr += `<td>${val}</td>`;
+        });
+        tr += "</tr>";
+        $("#detailsBody").append(tr);
+      });
+    }
+
+    /* -------------------- AUTH -------------------- */
+
+    function authHeader() {
+      return {
+        Authorization: localStorage.getItem("token") || ""
+      };
+    }
+  </script>
+
+</body>
+</html>

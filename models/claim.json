@@ -1,0 +1,50 @@
+[
+    {
+        "claimNumber": "CLM-1000000",
+        "claimDate": "2025-12-21",
+        "description": "",
+        "status": "approved",
+        "approvedAction": "manually",
+        "assessmentValue": 40200,
+        "approvedValue": 40200,
+        "damageAreas": [
+            {
+                "area": "frontRight",
+                "severity": "extensive",
+                "estimatedCost": 4800
+            },
+            {
+                "area": "front",
+                "severity": "extensive",
+                "estimatedCost": 5200
+            },
+            {
+                "area": "frontLeft",
+                "severity": "extensive",
+                "estimatedCost": 4800
+            },
+            {
+                "area": "leftFrontSide",
+                "severity": "extensive",
+                "estimatedCost": 6200
+            },
+            {
+                "area": "leftSide",
+                "severity": "extensive",
+                "estimatedCost": 6500
+            },
+            {
+                "area": "rightFrontSide",
+                "severity": "extensive",
+                "estimatedCost": 6200
+            },
+            {
+                "area": "rightSide",
+                "severity": "extensive",
+                "estimatedCost": 6500
+            }
+        ],
+        "createdAt": "2025-12-21T16:58:48.396139",
+        "updatedAt": "2025-12-21T17:00:31.178853"
+    }
+]
