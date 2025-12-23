@@ -133,3 +133,18 @@
   left: 0;
   border-radius: 6px;
 }
+
+.user-profile-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+}
+.dropdown-menu {
+  min-width: 200px;
+}
+.dropdown-item i {
+  width: 20px;
+  margin-right: 8px;
+}

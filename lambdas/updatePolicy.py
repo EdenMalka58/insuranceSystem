@@ -53,17 +53,18 @@ def handler(event, context):
                     )
                     expression_values[f":{section}_{field}"] = value
 
-        # updatedAt
-        update_expressions.append("updatedAt = :updatedAt")
-        expression_values[":updatedAt"] = datetime.utcnow().isoformat()
-
         if not update_expressions:
             return {
                 "statusCode": 400,
                 "body": json.dumps({"error": "No valid fields to update"}),
                 "headers": {"Access-Control-Allow-Origin": "*"}
             }
+        
+        # updatedAt
+        update_expressions.append("updatedAt = :updatedAt")
+        expression_values[":updatedAt"] = datetime.utcnow().isoformat()
 
+        
         update_expression = "SET " + ", ".join(update_expressions)
 
         table.update_item(

@@ -1,4 +1,5 @@
 const BASE_API = "https://azy4fomrz8.execute-api.us-east-1.amazonaws.com/prod";
+const USER_TOKEN_STIRAGE_KEY = 'token';
 const CURRENCY_SIGN = "$"
 
 const CLAIM_STATUS_OPENED = "opened";
@@ -17,17 +18,17 @@ async function apiCallAsync(method, url, data, onSuccess, onError, btn) {
       method: method,
       headers: {
         "Content-Type": "application/json",
-        Authorization: localStorage.getItem('token') || ''
+        Authorization: localStorage.getItem(USER_TOKEN_STIRAGE_KEY) || ''
       },
       body: data ? JSON.stringify(data) : null
     });
     resetButtonLoading(btn)
     const result = await res.json();
-    if (res.ok) {
+    if (res.ok) { // Status 200
       onSuccess && onSuccess(result);
       return result;
     }
-    else {
+    else { 
       console.error(result);
       onError && onError(result);
       return result;
@@ -129,6 +130,11 @@ function addSpinner(elementId) {
     `);
 
 }
+
+function removeSpinner(elementId) {
+  $(`#${elementId}`).empty();
+}
+
 
 
 const AREA_FRONT = "front";
@@ -264,7 +270,7 @@ function getPolicyDetailsHTML(policy, asAgent) {
 
 }
 
-function getClaimDetailsHTML(claim, asAgent) {
+function getClaimDetailsHTML(claim, asAgent, policy) {
   if (!claim) return '';
 
   const statusClass = `status-${claim.status}`;
@@ -301,9 +307,13 @@ function getClaimDetailsHTML(claim, asAgent) {
                 </div>
                 <div class="col-md-6">
                     ${asAgent && claim.approvedAction === APPROVED_ACTION_WAITING ? `
-                      <button class="btn btn-primary btn-sm"
+                      <button class="btn btn-primary btn-sm me-2"
                         onclick='approveClaim($(this),${JSON.stringify(policy.policyNumber)}, ${JSON.stringify(claim.claimNumber)}, ${JSON.stringify(claim.assessmentValue)})'>
                         <i class="fa-solid fa-thumbs-up"></i> Approve claim
+                      </button>
+                      <button class="btn btn-warning btn-sm"
+                        onclick='rejectClaim($(this),${JSON.stringify(policy.policyNumber)}, ${JSON.stringify(claim.claimNumber)}, ${JSON.stringify(claim.assessmentValue)})'>
+                        <i class="fa-solid fa-thumbs-down"></i> Reject claim
                       </button>
                     ` : ``}
                 </div>
@@ -355,4 +365,76 @@ function markClaimDamagesImage(image, damages) {
         .addClass("damages-image damages-image-area")
         .appendTo(container);
   });
+}
+
+
+function getUserTokenData() {
+  const idToken = localStorage.getItem(USER_TOKEN_STIRAGE_KEY);
+  if (idToken) {
+    const payload = JSON.parse(atob(idToken.split('.')[1]));
+    return payload;
+  }
+  return null;
+}
+
+function getUserEmail() {
+  const user = getUserTokenData();
+  if (user)
+    return user.email;
+}
+
+function getUserGroup() {
+  const user = getUserTokenData();
+  //if (user)
+  //  return user.cognito: groups
+
+}
+
+let isLoggedIn = false;
+
+function toggleUserState() {
+  isLoggedIn = !isLoggedIn;
+  updateNavbar();
+}
+
+function updateNavbar() {
+  const userDropdown = document.getElementById('userProfileDropdown');
+  const signInLink = document.getElementById('signInLink');
+  const signUpLink = document.getElementById('signUpLink');
+
+  const userImage = $('.user-profile-img');
+  const userName = $('.user-name');
+
+  const user = getUserTokenData();
+  isLoggedIn = user != null;
+  if (isLoggedIn) {
+    userName.text(user.email);
+    userImage.attr('src', `https://ui-avatars.com/api/?name=${user.email}&background=0d6efd&color=fff`)
+    userDropdown.style.display = 'block';
+    signInLink.style.display = 'none';
+    signUpLink.style.display = 'none';
+  } else {
+    userDropdown.style.display = 'none';
+    signInLink.style.display = 'block';
+    signUpLink.style.display = 'block';
+  }
+}
+
+function handleSignIn(event) {
+  event.preventDefault();
+  alert('Sign In clicked - integrate with your authentication system');
+}
+
+function handleSignUp(event) {
+  event.preventDefault();
+  alert('Sign Up clicked - integrate with your authentication system');
+}
+
+function handleLogout(event) {
+  event.preventDefault();
+  if (confirm('Are you sure you want to sign out?')) {
+    isLoggedIn = false;
+    updateNavbar();
+    alert('Signed out successfully');
+  }
 }

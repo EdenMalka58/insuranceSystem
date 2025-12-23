@@ -318,6 +318,16 @@ function openDetailsModal(data) {
 }
 
 /* Statistic functions */
+
+function openStatisticsModal() {
+  const drilldownModalTitle = $('#drilldownModalTitle').empty();
+  const drilldownModalContent = $('#drilldownModalContent').empty();
+  drilldownModalTitle.text('Statistics')
+  drilldownModalContent.append('<div class="row" id="chartsContainer"></div>')
+  new bootstrap.Modal("#drilldownModal").show();
+  loadStatistics()
+}
+
 async function loadStatistics() {
   addSpinner('chartsContainer');
   await apiCallAsync('GET', 'statistics', null, renderCharts, function () {
@@ -340,7 +350,7 @@ function renderCharts(data) {
             <div class="col-xl-4 col-lg-6 col-md-12 mb-4">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h6 class="card-title text-center">${key}</h6>
+                        <h6 class="card-title text-center">${chartConfig.title}</h6>
                         <canvas id="${canvasId}" height="200"></canvas>
                     </div>
                 </div>
@@ -380,14 +390,9 @@ function createChart(canvasId, chartKey, config) {
 
 async function loadStatisticDrilldown(type, value) {
   await apiCallAsync('GET', `statistics/drilldown?type=${type}&value=${value}`, null,
-    renderDrilldownList,
+    renderDetailsTable,
     function () {
       $("#drilldownContent").text('Failed loading drilldown data');
       new bootstrap.Modal("#drilldownModal").show();
     });
-}
-
-function renderDrilldownList(data) {
-  $("#drilldownContent").text(JSON.stringify(data, null, 2));
-  new bootstrap.Modal("#drilldownModal").show();
 }

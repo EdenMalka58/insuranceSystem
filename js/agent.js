@@ -1,16 +1,39 @@
 let policies = [];
 let currentPolicyToDelete = null;
-let currentPolicyToApprove = null;
-let currentClaimToApprove = null;
-let currentClaimApproveValue = null;
-let currentClaimApproveBtn = null;
+let currentPolicyToChange = null;
+let currentClaimToChange = null;
+let currentClaimToChangeBtn = null;
 let isEditMode = false;
+let policiesNextToken = null;
+let lastQuery = null;
+let loadingPolicies = false;
 
 
-async function loadPolicies(query) {
-  addSpinner('policiesList');
-  const url = query ? `policies?query=${encodeURIComponent(query)}` : 'policies'
-  await apiCallAsync('GET', url, null, displayPolicies,
+async function loadPolicies(query, reset = true) {
+  if (loadingPolicies) return;
+  loadingPolicies = true;
+
+  if (reset) {
+    policiesNextToken = null;
+    $('#policiesList').empty();
+  }
+
+  lastQuery = query;
+
+  let url = 'policies';
+  const params = [];
+  if (query) params.push(`query=${encodeURIComponent(query)}`);
+  if (policiesNextToken) params.push(`nextPage=${encodeURIComponent(policiesNextToken)}`);
+  if (params.length) url += '?' + params.join('&');
+
+
+  addSpinner('policiesListLoader');
+  await apiCallAsync('GET', url, null,
+    function (data) {
+      const policiesList = data.items || [];
+      policiesNextToken = data.nextPage || null;
+      displayPolicies(policiesList, !reset);
+    },
     function () {
       $('#policiesList').html(`
             <div class="alert alert-danger">
@@ -19,21 +42,39 @@ async function loadPolicies(query) {
         `);
     }
   )
+  loadingPolicies = false;
+  removeSpinner('policiesListLoader');
+}
+
+function initPaginationOnScroll() {
+  $(window).on('scroll', function () {
+    if (loadingPolicies) return;
+    if (!policiesNextToken) return;
+
+    const scrollTop = $(window).scrollTop();
+    const windowHeight = $(window).height();
+    const docHeight = $(document).height();
+
+    if (scrollTop + windowHeight >= docHeight - 100) { // 100px from bottom
+      loadPolicies(lastQuery, false);
+    }
+  });
 }
 
 async function searchPolicies() {
   loadPolicies($('#searchInput').val().trim());
 }
 
-function displayPolicies(policiesList) {
+function displayPolicies(policiesList, isMore) {
   const container = $('#policiesList');
-  container.empty();
+  if (!isMore) {
+    container.empty();
 
-  if (!policiesList || policiesList.length === 0) {
-    container.html('<div class="alert alert-info">No policies found</div>');
-    return;
+    if (!policiesList || policiesList.length === 0) {
+      container.html('<div class="alert alert-info">No policies found</div>');
+      return;
+    }
   }
-
   policiesList.forEach(policy => {
     const card = getPolicyDetailsHTML(policy, true);
     container.append(card);
@@ -84,7 +125,7 @@ function displayClaimsList(data) {
     claims.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
     html += '<h5 class="mb-3">Claims List</h5>';
     claims.forEach(claim => {
-      html += getClaimDetailsHTML(claim, true)
+      html += getClaimDetailsHTML(claim, true, policy)
     });
   }
 
@@ -218,26 +259,45 @@ async function confirmDelete() {
 }
 
 function approveClaim(btn, policyNumber, claimNumber, assessmentValue) {
-  currentPolicyToApprove = policyNumber;
-  currentClaimToApprove = claimNumber;
-  currentClaimApproveValue = assessmentValue;
-  currentClaimApproveBtn = btn;
-  $('#approveCliamNumber').text(claimNumber);
-  $('#approveClaimValue').text(`${CURRENCY_SIGN} ${assessmentValue.toLocaleString()}`);
+  currentPolicyToChange = policyNumber;
+  currentClaimToChange = claimNumber;
+  currentClaimToChangeBtn = btn;
+  const approveClaimModalHeader = $('#approveClaimModalHeader').empty();
+  const approveClaimModalText = $('#approveClaimModalText').empty();
+  const approveClaimModalBtn = $('#approveClaimModalBtn').empty();
+  approveClaimModalHeader.html('<i class="fa-solid fa-thumbs-up"></i> Claim confirmation');
+  approveClaimModalText.html(`Are you sure you want to approve claim <strong>${claimNumber}</strong> for <strong>${CURRENCY_SIGN} ${assessmentValue.toLocaleString() }</strong> ?`);
+  approveClaimModalBtn.off('click').on('click', function () { confirmClaimApprove(true) }).text('Approve Claim')
   new bootstrap.Modal($('#approveClaimModal')).show();
 }
 
-async function confirmClaimApprove() {
+function rejectClaim(btn, policyNumber, claimNumber, assessmentValue) {
+  currentPolicyToChange = policyNumber;
+  currentClaimToChange = claimNumber;
+  currentClaimToChangeBtn = btn;
+  const approveClaimModalHeader = $('#approveClaimModalHeader').empty();
+  const approveClaimModalText = $('#approveClaimModalText').empty();
+  const approveClaimModalBtn = $('#approveClaimModalBtn').empty();
+  approveClaimModalHeader.html('<i class="fa-solid fa-thumbs-down"></i> Claim rejection');
+  approveClaimModalText.html(`Are you sure you want to reject claim <strong>${claimNumber}</strong> for <strong>${CURRENCY_SIGN} ${assessmentValue.toLocaleString()}</strong> ?`);
+  approveClaimModalBtn.off('click').on('click', function () { confirmClaimApprove(false) }).text('Reject Claim')
+  new bootstrap.Modal($('#approveClaimModal')).show();
+}
+
+
+async function confirmClaimApprove(isApproved) {
   const claimData = {
-    policyNumber: currentPolicyToApprove,
-    claimNumber: currentClaimToApprove,
+    policyNumber: currentPolicyToChange,
+    claimNumber: currentClaimToChange,
+    isApproved: isApproved
   };
 
   await apiCallAsync('PUT', 'claims', claimData, function (data) {
-    showAlert('Claim approved successfully', 'success', 'Success');
+    showAlert(isApproved ? 'Claim approved successfully' : 'Claim rejected successfully', 'success', 'Success');
     bootstrap.Modal.getInstance($('#approveClaimModal')).hide();
-    loadPolicyClaims(currentPolicyToApprove);
+    loadPolicyClaims(currentPolicyToChange);
   }, function () {
     showAlert('Error approving claim', 'error', 'Error');
-  }, currentClaimApproveBtn)
+  }, currentClaimToChangeBtn)
 }
+

@@ -111,11 +111,7 @@ def handler(event, context):
 
         missing = [f for f in required_fields if f not in body]
         if missing:
-            return {
-                "statusCode": 400,
-                "body": json.dumps({"error": f"Missing fields: {missing}"}),
-                "headers": {"Access-Control-Allow-Origin": "*"}
-            }
+            return error(400, f"Missing fields: {missing}")
 
         # Verify policy exists
         policy_key = {
@@ -126,17 +122,9 @@ def handler(event, context):
         try:
             policy_response = table.get_item(Key=policy_key)
             if "Item" not in policy_response:
-                return {
-                    "statusCode": 404,
-                    "body": json.dumps({"error": "Policy not found"}),
-                    "headers": {"Access-Control-Allow-Origin": "*"}
-                }
+                return error(404, "Policy not found")
         except Exception as e:
-            return {
-                "statusCode": 500,
-                "body": json.dumps({"error": f"Error verifying policy: {str(e)}"}),
-                "headers": {"Access-Control-Allow-Origin": "*"}
-            }
+            return error(500, f"Error verifying policy: {str(e)}")
 
         claim_number = body.get("claimNumber")
         policy_number = body.get("policyNumber")
@@ -184,7 +172,7 @@ def handler(event, context):
             # policyNumber and claimNumber are mandatory in token record for quick data lookup
             "policyNumber": policy_number,
             "claimNumber": claim_number,
-            "expiresAt": expires_at,
+            "expiresAt": expires_at, # TTL was configured under this field
             "used": False
         })
         policy = policy_response.get("Item", {})
@@ -221,23 +209,18 @@ def handler(event, context):
 
     except ClientError as e:
         if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
-            return {
-                "statusCode": 409,
-                "body": json.dumps({"error": "Claim already exists"}),
-                "headers": {"Access-Control-Allow-Origin": "*"}
-            }
-        return {
-            "statusCode": 500,
-            "body": json.dumps({"error": str(e)}),
-            "headers": {"Access-Control-Allow-Origin": "*"}
-        }
+            return error(409, "Claim already exists")
+        return error(500, str(e))
     except Exception as e:
-        return {
-            "statusCode": 500,
-            "body": json.dumps({"error": str(e)}),
-            "headers": {"Access-Control-Allow-Origin": "*"}
-        }
+        return error(500, str(e))
     
+def error(status, message):
+    return {
+        "statusCode": status,
+        "headers": {"Access-Control-Allow-Origin": "*"},
+        "body": json.dumps({"error": message})
+    }
+
     
     
 

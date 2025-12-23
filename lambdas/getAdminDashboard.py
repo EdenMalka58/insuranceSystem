@@ -75,7 +75,7 @@ def handler(event, context):
             },
             {
                 "id": "claimsOpened",
-                "title": "Claims Opened",
+                "title": "Opened Claims",
                 "count": len(opened_claims),
                 "amount": 0,
                 "color": "info",

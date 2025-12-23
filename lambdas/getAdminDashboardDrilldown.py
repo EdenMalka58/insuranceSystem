@@ -25,12 +25,6 @@ def handler(event, context):
             FilterExpression=Attr("entityType").eq("POLICY")
         )["Items"]
 
-        # Optional year filter
-        policies = [
-            p for p in policies
-            if p.get("createdAt", "").startswith(str(year))
-        ]
-
         return ok(policies)
 
     # ---------- CLAIMS ----------
@@ -38,11 +32,13 @@ def handler(event, context):
         FilterExpression=Attr("entityType").eq("POLICY_CLAIM")
     )["Items"]
 
-    # Year filter
-    claims = [
-        c for c in claims
-        if c.get("createdAt", "").startswith(str(year))
-    ]
+    
+    if drill_type == "approvedClaimsByMonth" or drill_type == "rejectedClaimsByMonth":
+        # Year filter
+        claims = [
+            c for c in claims
+            if c.get("createdAt", "").startswith(str(year))
+        ]
 
     # ---------- Drilldown Logic ----------
     if drill_type == "claimsByStatus":

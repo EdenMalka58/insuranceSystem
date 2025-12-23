@@ -1,6 +1,9 @@
 import json
 import boto3
 from collections import defaultdict
+from auth import require_admin
+from response import ok, error
+
 
 dynamo = boto3.resource("dynamodb")
 table = dynamo.Table("InsuranceSystem")
@@ -8,6 +11,8 @@ table = dynamo.Table("InsuranceSystem")
 # ---------------- HANDLER ----------------
 
 def handler(event, context):
+    if not require_admin(event):
+        return error(403, "Admin access required")
 
     resp = table.scan()
     items = resp.get("Items", [])
@@ -32,7 +37,7 @@ def handler(event, context):
         "deductibleVsOutcome": deductible_vs_outcome(claims, policies)
     }
 
-    return response(200, stats)
+    return ok(200, stats)
 
 
 # ---------------- HELPERS ----------------
@@ -44,8 +49,9 @@ def bucket(value, ranges):
     return ranges[-1][0]
 
 
-def chart(chart_type, labels, data, drill_key):
+def chart(chart_type, labels, data, drill_key, title):
     return {
+        "title": title,
         "type": chart_type,
         "data": {
             "labels": labels,
@@ -65,14 +71,14 @@ def claims_by_status(claims):
     c = defaultdict(int)
     for i in claims:
         c[i["status"]] += 1
-    return chart("pie", list(c.keys()), list(c.values()), "claimsByStatus")
+    return chart("pie", list(c.keys()), list(c.values()), "claimsByStatus", "Claims by Status")
 
 
 def claims_by_action(claims):
     c = defaultdict(int)
     for i in claims:
         c[i["approvedAction"]] += 1
-    return chart("bar", list(c.keys()), list(c.values()), "claimsByApprovedAction")
+    return chart("bar", list(c.keys()), list(c.values()), "claimsByApprovedAction", "Claims by Approval Method")
 
 
 def claims_over_time(claims):
@@ -80,7 +86,7 @@ def claims_over_time(claims):
     for i in claims:
         c[i["createdAt"][:10]] += 1
     labels = sorted(c.keys())
-    return chart("line", labels, [c[d] for d in labels], "claimsByDate")
+    return chart("line", labels, [c[d] for d in labels], "claimsByDate", "Claims Over Time")
 
 
 def approved_value_by_month(claims):
@@ -88,7 +94,7 @@ def approved_value_by_month(claims):
     for i in claims:
         s[i["createdAt"][:7]] += int(i.get("approvedValue", 0))
     labels = sorted(s.keys())
-    return chart("bar", labels, [s[m] for m in labels], "approvedValueByMonth")
+    return chart("bar", labels, [s[m] for m in labels], "approvedValueByMonth", "Approved Claim Value by Month")
 
 
 def policies_over_time(policies):
@@ -96,7 +102,7 @@ def policies_over_time(policies):
     for p in policies:
         c[p["createdAt"][:10]] += 1
     labels = sorted(c.keys())
-    return chart("line", labels, [c[d] for d in labels], "policiesByDate")
+    return chart("line", labels, [c[d] for d in labels], "policiesByDate", "Policies Created Over Time")
 
 
 def claims_by_vehicle_year(claims, policies):
@@ -105,7 +111,7 @@ def claims_by_vehicle_year(claims, policies):
         p = policies.get(cl["policyNumber"])
         if p:
             c[str(p["vehicle"]["year"])] += 1
-    return chart("bar", list(c.keys()), list(c.values()), "claimsByVehicleYear")
+    return chart("bar", list(c.keys()), list(c.values()), "claimsByVehicleYear", "Claims by Vehicle Year")
 
 
 def claims_by_vehicle_value(claims, policies):
@@ -116,7 +122,7 @@ def claims_by_vehicle_value(claims, policies):
         p = policies.get(cl["policyNumber"])
         if p:
             c[bucket(p["insuredValue"], ranges)] += 1
-    return chart("bar", list(c.keys()), list(c.values()), "claimsByVehicleValue")
+    return chart("bar", list(c.keys()), list(c.values()), "claimsByVehicleValue", "Claims by Vehicle Insured Value")
 
 
 def approval_rate_by_deductible(claims, policies):
@@ -136,6 +142,7 @@ def approval_rate_by_deductible(claims, policies):
     rates = [round((approved[l]/total[l])*100,1) if total[l] else 0 for l in labels]
 
     return {
+        "title": "Approval Rate by Deductible",
         "type": "bar",
         "data": {"labels": labels,
                  "datasets": [{"label": "Approval %", "data": rates}]},
@@ -159,6 +166,7 @@ def avg_claim_cost_by_vehicle_value(claims, policies):
     avg = [round(sums[l]/cnt[l],2) if cnt[l] else 0 for l in labels]
 
     return {
+        "title": "Average Claim Cost by Vehicle Value",
         "type": "line",
         "data": {"labels": labels,
                  "datasets": [{"label": "Avg Claim Cost", "data": avg}]},
@@ -182,6 +190,7 @@ def deductible_vs_outcome(claims, policies):
 
     labels = list(app.keys())
     return {
+        "title": "Claim Outcome by Deductible",
         "type": "bar",
         "data": {
             "labels": labels,
@@ -194,10 +203,3 @@ def deductible_vs_outcome(claims, policies):
         "drilldown": {"enabled": True, "key": "deductibleVsOutcome"}
     }
 
-
-def response(code, body):
-    return {
-        "statusCode": code,
-        "headers": {"Access-Control-Allow-Origin": "*"},
-        "body": json.dumps(body, default=str)
-    }
