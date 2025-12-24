@@ -4,17 +4,21 @@ let currentPolicyToChange = null;
 let currentClaimToChange = null;
 let currentClaimToChangeBtn = null;
 let isEditMode = false;
-let policiesNextToken = null;
+let currentPage = 1;
+let pageSize = 5;
 let lastQuery = null;
 let loadingPolicies = false;
-
+let hasNextPage = true;
 
 async function loadPolicies(query, reset = true) {
   if (loadingPolicies) return;
+  if (!hasNextPage && !reset) return;
+
   loadingPolicies = true;
 
   if (reset) {
-    policiesNextToken = null;
+    currentPage = 1;
+    hasNextPage = true;
     $('#policiesList').empty();
   }
 
@@ -22,26 +26,35 @@ async function loadPolicies(query, reset = true) {
 
   let url = 'policies';
   const params = [];
-  if (query) params.push(`query=${encodeURIComponent(query)}`);
-  if (policiesNextToken) params.push(`nextPage=${encodeURIComponent(policiesNextToken)}`);
-  if (params.length) url += '?' + params.join('&');
 
+  if (query) params.push(`query=${encodeURIComponent(query)}`);
+  params.push(`page=${currentPage}`);
+  params.push(`pageSize=${pageSize}`);
+
+  url += '?' + params.join('&');
 
   addSpinner('policiesListLoader');
+
   await apiCallAsync('GET', url, null,
     function (data) {
       const policiesList = data.items || [];
-      policiesNextToken = data.nextPage || null;
+
+      hasNextPage = data.hasNext === true;
       displayPolicies(policiesList, !reset);
+
+      if (hasNextPage) {
+        currentPage++;
+      }
     },
     function () {
       $('#policiesList').html(`
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-circle"></i> Error loading policies
-            </div>
-        `);
+        <div class="alert alert-danger">
+          <i class="fas fa-exclamation-circle"></i> Error loading policies
+        </div>
+      `);
     }
-  )
+  );
+
   loadingPolicies = false;
   removeSpinner('policiesListLoader');
 }
@@ -49,13 +62,13 @@ async function loadPolicies(query, reset = true) {
 function initPaginationOnScroll() {
   $(window).on('scroll', function () {
     if (loadingPolicies) return;
-    if (!policiesNextToken) return;
+    if (!hasNextPage) return;
 
     const scrollTop = $(window).scrollTop();
     const windowHeight = $(window).height();
     const docHeight = $(document).height();
 
-    if (scrollTop + windowHeight >= docHeight - 100) { // 100px from bottom
+    if (scrollTop + windowHeight >= docHeight - 100) {
       loadPolicies(lastQuery, false);
     }
   });
@@ -233,8 +246,8 @@ async function submitClaim(e) {
     const linkSentMessage = data.emailSent ? '<span>A link is sent to the insured for reporting vehicle damage.</span>' : ''
     showAlert(`${successMessage}${linkSentMessage}`, 'success', 'Success');
     bootstrap.Modal.getInstance($('#claimModal')).hide();
-  }, function () {
-    showAlert('Error opening claim', 'error', 'Error');
+  }, function (error) {
+    showAlert(error.error, 'error', 'Error opening claim');
   }, $('#save-claim-btn'))
 }
 

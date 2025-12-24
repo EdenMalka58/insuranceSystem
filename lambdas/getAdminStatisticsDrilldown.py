@@ -1,17 +1,23 @@
 import json
 import boto3
+from auth import require_admin
+from response import ok, error
+
 
 dynamo = boto3.resource("dynamodb")
 table = dynamo.Table("InsuranceSystem")
 
 def handler(event, context):
+    if not require_admin(event):
+        return error(403, "Admin access required")
+
 
     params = event.get("queryStringParameters") or {}
     dtype = params.get("type")
     value = params.get("value")
 
     if not dtype or not value:
-        return response(400, {"error": "type and value required"})
+        return error(400, "type and value required")
 
     items = table.scan()["Items"]
     claims = [i for i in items if i.get("entityType") == "POLICY_CLAIM"]
@@ -53,16 +59,7 @@ def handler(event, context):
             if value in str(p["deductibleValue"]):
                 result.append(c)
 
-    return response(200, result)
-
-
-def response(code, body):
-    return {
-        "statusCode": code,
-        "headers": {"Access-Control-Allow-Origin": "*"},
-        "body": json.dumps(body, default=str)
-    }
-
+    return ok(result)
 #{
 #    "queryStringParameters": {
 #    "type": "claimsByStatus",

@@ -3,16 +3,17 @@ import boto3
 from boto3.dynamodb.conditions import Attr
 from datetime import datetime
 from decimal import Decimal
+from auth import require_admin
+from response import ok, error
+
 
 dynamo = boto3.resource("dynamodb")
 table = dynamo.Table("InsuranceSystem")
 
-def decimal_default(obj):
-    if isinstance(obj, Decimal):
-        return float(obj)
-    raise TypeError
-
 def handler(event, context):
+    if not require_admin(event):
+        return error(403, "Admin access required")
+
 
     params = event.get("queryStringParameters") or {}
     year = params.get("year")
@@ -131,17 +132,3 @@ def handler(event, context):
     }
 
     return ok(response)
-
-def ok(body):
-    return {
-        "statusCode": 200,
-        "headers": {"Access-Control-Allow-Origin": "*"},
-        "body": json.dumps(body, default=decimal_default)
-    }
-
-def error(code, msg):
-    return {
-        "statusCode": code,
-        "headers": {"Access-Control-Allow-Origin": "*"},
-        "body": json.dumps({"error": msg})
-    }

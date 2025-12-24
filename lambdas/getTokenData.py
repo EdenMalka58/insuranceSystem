@@ -3,15 +3,10 @@ import boto3
 from datetime import datetime, timezone
 from time import time
 from decimal import Decimal
-
+from response import ok, error
 
 dynamo = boto3.resource("dynamodb")
 table = dynamo.Table("InsuranceSystem")
-
-def decimal_default(obj):
-    if isinstance(obj, Decimal):
-        return float(obj)
-    raise TypeError
 
 def handler(event, context):
     try:
@@ -86,28 +81,12 @@ def handler(event, context):
             return error(404, f"Policy #{policy_number} not found")
 
         # Success
-        return {
-            "statusCode": 200,
-            "headers": {
-                "Access-Control-Allow-Origin": "*"
-            },
-            "body": json.dumps({
-                "policyNumber": policy_number,
-                "claimNumber": claim_number,
-                "insured": policy_item.get("insured"),
-                "vehicle": policy_item.get("vehicle")
-            }, default=decimal_default, ensure_ascii=False)
-        }
+        return ok({
+            "policyNumber": policy_number,
+            "claimNumber": claim_number,
+            "insured": policy_item.get("insured"),
+            "vehicle": policy_item.get("vehicle")
+        })
 
     except Exception as e:
-        return error(500, str(e))
-
-
-def error(status, message):
-    return {
-        "statusCode": status,
-        "headers": {
-            "Access-Control-Allow-Origin": "*"
-        },
-        "body": json.dumps({"error": message})
-    }
+        return error(500, "Internal sever error")

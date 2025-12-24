@@ -3,16 +3,17 @@ import boto3
 from datetime import datetime
 from botocore.exceptions import ClientError
 from decimal import Decimal
+from auth import require_agent
+from response import ok, error
+
 
 dynamo = boto3.resource("dynamodb")
 table = dynamo.Table("InsuranceSystem")
 
-def decimal_default(obj):
-    if isinstance(obj, Decimal):
-        return float(obj)
-    raise TypeError
-
 def handler(event, context):
+    if not require_agent(event):
+        return error(403, "Agent access required")
+
     try:
         body = json.loads(event.get("body", "{}"))
 
@@ -67,27 +68,15 @@ def handler(event, context):
             ConditionExpression="attribute_exists(PK)"
         )
 
-        return {
-            "statusCode": 200,
-            "headers": {"Access-Control-Allow-Origin": "*"},
-            "body": json.dumps({
-                "message": "Claim approved manually",
-                "policyNumber": policy_number,
-                "claimNumber": claim_number,
-                "approvedValue": assessment_value,
-                "approvedAction": "manually"
-            }, default=decimal_default, ensure_ascii=False)
-        }
+        return ok({
+            "message": "Claim approved manually",
+            "policyNumber": policy_number,
+            "claimNumber": claim_number,
+            "approvedValue": assessment_value,
+            "approvedAction": "manually"
+        })
 
     except ClientError as e:
-        return error(500, str(e))
+        return error(500, "Internal sever error")
     except Exception as e:
-        return error(500, str(e))
-
-
-def error(status, message):
-    return {
-        "statusCode": status,
-        "headers": {"Access-Control-Allow-Origin": "*"},
-        "body": json.dumps({"error": message})
-    }
+        return error(500, "Internal sever error")

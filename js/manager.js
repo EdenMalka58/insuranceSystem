@@ -390,9 +390,5 @@ function createChart(canvasId, chartKey, config) {
 
 async function loadStatisticDrilldown(type, value) {
   await apiCallAsync('GET', `statistics/drilldown?type=${type}&value=${value}`, null,
-    renderDetailsTable,
-    function () {
-      $("#drilldownContent").text('Failed loading drilldown data');
-      new bootstrap.Modal("#drilldownModal").show();
-    });
+    renderDetailsTable);
 }

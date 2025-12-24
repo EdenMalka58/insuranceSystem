@@ -1,6 +1,7 @@
 const BASE_API = "https://azy4fomrz8.execute-api.us-east-1.amazonaws.com/prod";
 const USER_TOKEN_STIRAGE_KEY = 'token';
 const CURRENCY_SIGN = "$"
+const IS_LOCALHOST = location.hostname === "localhost" || location.hostname === "127.0.0.1"
 
 const CLAIM_STATUS_OPENED = "opened";
 const CLAIM_STATUS_REJECTED = "rejected";
@@ -35,6 +36,7 @@ async function apiCallAsync(method, url, data, onSuccess, onError, btn) {
     }
   }
   catch (error) {
+    resetButtonLoading(btn);
     console.error(error);
     onError && onError(error);
     return null;
@@ -246,6 +248,10 @@ function getPolicyDetailsHTML(policy, asAgent) {
                     <i class="fas fa-hand-holding-usd"></i>
                     <strong>Deductible:</strong>&nbsp;${CURRENCY_SIGN}${policy.deductibleValue.toLocaleString()}
                 </div>
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <strong>Opened:</strong>&nbsp;${formatDate(policy.createdAt)}
+                </div>
             </div>
             ${asAgent ? `<div class="d-flex w-100 justify-content-between">
                 <div class="action-buttons">
@@ -399,42 +405,38 @@ function toggleUserState() {
 
 function updateNavbar() {
   const userDropdown = document.getElementById('userProfileDropdown');
-  const signInLink = document.getElementById('signInLink');
-  const signUpLink = document.getElementById('signUpLink');
 
   const userImage = $('.user-profile-img');
   const userName = $('.user-name');
 
   const user = getUserTokenData();
+  if (!user) {
+    redirectToLogoutPage();
+    return;
+  }
+  const groups = user['cognito:groups'] || [];
+  const group = groups.length > 0 ? ` (${groups[0]}) ` : '';
   isLoggedIn = user != null;
   if (isLoggedIn) {
-    userName.text(user.email);
+    userName.text(`${user.email}${group}`);
     userImage.attr('src', `https://ui-avatars.com/api/?name=${user.email}&background=0d6efd&color=fff`)
     userDropdown.style.display = 'block';
-    signInLink.style.display = 'none';
-    signUpLink.style.display = 'none';
   } else {
     userDropdown.style.display = 'none';
-    signInLink.style.display = 'block';
-    signUpLink.style.display = 'block';
   }
-}
-
-function handleSignIn(event) {
-  event.preventDefault();
-  alert('Sign In clicked - integrate with your authentication system');
-}
-
-function handleSignUp(event) {
-  event.preventDefault();
-  alert('Sign Up clicked - integrate with your authentication system');
 }
 
 function handleLogout(event) {
   event.preventDefault();
-  if (confirm('Are you sure you want to sign out?')) {
-    isLoggedIn = false;
-    updateNavbar();
-    alert('Signed out successfully');
-  }
+  localStorage.removeItem(USER_TOKEN_STIRAGE_KEY);
+  toggleUserState();
+  redirectToLogoutPage();
+}
+
+function redirectToLogoutPage() {
+  const myLoginPageUri = IS_LOCALHOST ?
+    'http://localhost:62786/index.html' :
+    'https://insurance-claim-damage-pages.s3.us-east-1.amazonaws.com/index.html';
+  const cognitoHostedUIUrl = `https://us-east-1mtfe5dbmy.auth.us-east-1.amazoncognito.com/login?client_id=4r8iur2dg3h8t5ngh7qf4a3cm7&response_type=token&scope=email+openid&redirect_uri=${encodeURIComponent(myLoginPageUri)}`;
+  window.location.href = cognitoHostedUIUrl
 }

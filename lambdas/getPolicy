@@ -2,29 +2,23 @@ import json
 import boto3
 from boto3.dynamodb.conditions import Key
 from decimal import Decimal
+from auth import require_agent
+from response import ok, error
 
 dynamo = boto3.resource("dynamodb")
 table = dynamo.Table("InsuranceSystem")
 
-
-def decimal_default(obj):
-    if isinstance(obj, Decimal):
-        return int(obj) if obj % 1 == 0 else float(obj)
-    raise TypeError
-
-
 def handler(event, context):
+    if not require_agent(event):
+        return error(403, "Agent access required")
+
     try:
         path_params = event.get("pathParameters") or {}
         policy_number = path_params.get("policyNumber")
 
         if not policy_number:
-            return {
-                "statusCode": 400,
-                "body": json.dumps({"error": "policyNumber is required"}),
-                "headers": {"Access-Control-Allow-Origin": "*"}
-            }
-
+            return error(400, "policyNumber is required")
+                
         # Get full policy metadata
         policy_response = table.get_item(
             Key={
@@ -34,11 +28,7 @@ def handler(event, context):
         )
 
         if "Item" not in policy_response:
-            return {
-                "statusCode": 404,
-                "body": json.dumps({"error": "Policy not found"}),
-                "headers": {"Access-Control-Allow-Origin": "*"}
-            }
+            return error(404, "Policy not found")
 
         policy_item = policy_response["Item"]
 
@@ -65,22 +55,14 @@ def handler(event, context):
             })
 
         # Return full policy + claims
-        return {
-            "statusCode": 200,
-            "body": json.dumps({
-                "policy": policy_item,
-                "claimsCount": len(claims),
-                "claims": claims
-            }, default=decimal_default, ensure_ascii=False),
-            "headers": {"Access-Control-Allow-Origin": "*"}
-        }
+        return ok({
+            "policy": policy_item,
+            "claimsCount": len(claims),
+            "claims": claims
+        })
 
     except Exception as e:
-        return {
-            "statusCode": 500,
-            "body": json.dumps({"error": str(e)}),
-            "headers": {"Access-Control-Allow-Origin": "*"}
-        }
+        return error(500, 'Internal sever error')
 # request
 # {
 #     "queryStringParameters": {

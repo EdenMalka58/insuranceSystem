@@ -2,76 +2,60 @@ import json
 import boto3
 from boto3.dynamodb.conditions import Key, Attr
 from decimal import Decimal
-import base64
+from auth import require_agent
+from response import ok, error
 
 dynamo = boto3.resource("dynamodb")
 table = dynamo.Table("InsuranceSystem")
 
-PAGE_SIZE = 5
+DEFAULT_PAGE_SIZE = 5
+MAX_PAGE_SIZE = 50
 
 
 # ---------- HELPERS ----------
-
-def decimal_default(obj):
-    if isinstance(obj, Decimal):
-        return float(obj)
-    raise TypeError
-
 
 def safe_dict(v):
     return v if isinstance(v, dict) else {}
 
 
-def encode_token(key):
-    if not key:
-        return None
-    return base64.b64encode(json.dumps(key).encode()).decode()
-
-
-def decode_token(token):
-    if not token:
-        return None
-
-    padding = '=' * (-len(token) % 4)
-    token += padding
-
-    return json.loads(
-        base64.urlsafe_b64decode(token.encode()).decode()
-    )
-
 # ---------- HANDLER ----------
 
 def handler(event, context):
+    if not require_agent(event):
+        return error(403, "Agent access required")
+
     try:
         params = event.get("queryStringParameters") or {}
+
         search_query = params.get("query")
-        next_page_token = decode_token(params.get("nextPage"))
+
+        page = max(int(params.get("page", 1)), 1)
+        page_size = min(
+            max(int(params.get("pageSize", DEFAULT_PAGE_SIZE)), 1),
+            MAX_PAGE_SIZE
+        )
 
         items = []
-        last_key = next_page_token
 
-        # NO SEARCH → SCAN POLICIES ONLY (FIXED)
+        # ---------- NO SEARCH → SCAN ALL POLICIES ----------
         if not search_query:
-            while len(items) < PAGE_SIZE:
-                scan_kwargs = {
-                    "FilterExpression": (
-                        Attr("PK").begins_with("POLICY#") &
-                        Attr("SK").eq("METADATA")
-                    ),
-                    "Limit": PAGE_SIZE
-                }
+            scan_kwargs = {
+                "FilterExpression": (
+                    Attr("PK").begins_with("POLICY#") &
+                    Attr("SK").eq("METADATA")
+                )
+            }
 
-                if last_key:
-                    scan_kwargs["ExclusiveStartKey"] = last_key
-
+            while True:
                 response = table.scan(**scan_kwargs)
                 items.extend(response.get("Items", []))
-                last_key = response.get("LastEvaluatedKey")
 
-                if not last_key:
+                if "LastEvaluatedKey" not in response:
                     break
 
-        # SEARCH BY policyNumber OR insured idNumber
+                scan_kwargs["ExclusiveStartKey"] = response["LastEvaluatedKey"]
+
+        # ---------- SEARCH ----------
         else:
             policy_response = table.get_item(
                 Key={
@@ -82,20 +66,34 @@ def handler(event, context):
 
             if "Item" in policy_response:
                 items = [policy_response["Item"]]
-                last_key = None
             else:
                 query_kwargs = {
                     "IndexName": "GSI1_UserPolicies",
-                    "KeyConditionExpression": Key("GSI1PK").eq(search_query),
-                    "Limit": PAGE_SIZE
+                    "KeyConditionExpression": Key("GSI1PK").eq(search_query)
                 }
 
-                if next_page_token:
-                    query_kwargs["ExclusiveStartKey"] = next_page_token
+                while True:
+                    response = table.query(**query_kwargs)
+                    items.extend(response.get("Items", []))
 
-                response = table.query(**query_kwargs)
-                items = response.get("Items", [])
-                last_key = response.get("LastEvaluatedKey")
+                    if "LastEvaluatedKey" not in response:
+                        break
+
+                    query_kwargs["ExclusiveStartKey"] = response["LastEvaluatedKey"]
+
+        # ---------- SORT (CRITICAL FIX) ----------
+        items.sort(
+            key=lambda x: x.get("createdAt", ""),
+            reverse=True
+        )
+
+        # ---------- PAGINATION ----------
+        total = len(items)
+        start = (page - 1) * page_size
+        end = start + page_size
+
+        paged_items = items[start:end]
+        has_next = end < total
 
         # ---------- SHAPE ----------
         policies = [{
@@ -106,27 +104,15 @@ def handler(event, context):
             "insuredValue": i.get("insuredValue"),
             "deductibleValue": i.get("deductibleValue"),
             "createdAt": i.get("createdAt")
-        } for i in items[:PAGE_SIZE]]
+        } for i in paged_items]
 
-        policies.sort(key=lambda x: x.get("createdAt", ""), reverse=True)
-
-        return {
-            "statusCode": 200,
-            "headers": {"Access-Control-Allow-Origin": "*"},
-            "body": json.dumps({
-                "items": policies,
-                "nextPage": encode_token(last_key)
-            }, default=decimal_default)
-        }
+        return ok({
+            "items": policies,
+            "page": page,
+            "pageSize": page_size,
+            "total": total,
+            "hasNext": has_next
+        })
 
     except Exception as e:
-        return {
-            "statusCode": 500,
-            "headers": {"Access-Control-Allow-Origin": "*"},
-            "body": json.dumps({"error": str(e)})
-        }
-#{
-#  "queryStringParameters": {
-#    "query": "38388112"
-#  }
-#}
+        return error(500, "Internal server error")

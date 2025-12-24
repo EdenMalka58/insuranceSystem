@@ -1,29 +1,27 @@
 import json
 import boto3
 from datetime import datetime
+from auth import require_agent
+from response import ok, error
+
 
 dynamo = boto3.resource("dynamodb")
 table = dynamo.Table("InsuranceSystem")
 
 def handler(event, context):
+    if not require_agent(event):
+        return error(403, "Agent access required")
+
     try:
         path_params = event.get("pathParameters") or {}
         policy_number = path_params.get("policyNumber")
 
         if not policy_number:
-            return {
-                "statusCode": 400,
-                "body": json.dumps({"error": "policyNumber is required"}),
-                "headers": {"Access-Control-Allow-Origin": "*"}
-            }
+            return error(400, "policyNumber is required")
 
         body = json.loads(event.get("body", "{}"))
         if not body:
-            return {
-                "statusCode": 400,
-                "body": json.dumps({"error": "Request body is empty"}),
-                "headers": {"Access-Control-Allow-Origin": "*"}
-            }
+            return error(400, "Request body is empty")
 
         update_expressions = []
         expression_values = {}
@@ -78,15 +76,7 @@ def handler(event, context):
             ConditionExpression="attribute_exists(PK)"
         )
 
-        return {
-            "statusCode": 200,
-            "body": json.dumps({"message": "Policy updated successfully"}),
-            "headers": {"Access-Control-Allow-Origin": "*"}
-        }
+        return ok({"message": "Policy updated successfully"})
 
     except Exception as e:
-        return {
-            "statusCode": 500,
-            "body": json.dumps({"error": str(e)}),
-            "headers": {"Access-Control-Allow-Origin": "*"}
-        }
+        return error(500, 'Internal sever error')

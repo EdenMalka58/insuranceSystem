@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Insurance System Login</title>
+</head>
+<body>
+  <script>
+    const params = new URLSearchParams(window.location.hash.substring(1));
+    const idToken = params.get('id_token');
+    const isLocalHost = location.hostname === "localhost" || location.hostname === "127.0.0.1"
+
+
+    if (!idToken) {
+      // No token found in URL params, then redirect to Cognito Hosted UI
+      const myLoginPageUri = isLocalHost ?
+        'http://localhost:62786/pages/login.html' :
+        encodeURIComponent('https://insurance-claim-damage-pages.s3.us-east-1.amazonaws.com/pages/login.html');
+      const cognitoHostedUIUrl =
+        `https://us-east-1zheq80n4j.auth.us-east-1.amazoncognito.com/login?client_id=1udssiqt63d180f8gkt0qicfgl&response_type=code&scope=email+openid+phone&redirect_uri=${myLoginPageUri}`;
+      
+      window.location.href = cognitoHostedUIUrl
+    }
+    else {
+      // Otherwise read the token group role and decided which page is the home page
+      const payload = JSON.parse(atob(idToken.split('.')[1]));
+      const groups = payload['cognito:groups'] || [];
+      // Store token in local storage to use in the redirected page
+      localStorage.setItem('token', idToken);
+
+      // Decide which page is the home page by the group
+      const homePageUrl = groups.includes('admin') ? 'manager.html' : 'agent.html'
+      // Redirect to home page
+      window.location.href = homePageUrl;
+    }
+  </script>
+</body>
+</html>

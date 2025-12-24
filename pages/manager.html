@@ -7,10 +7,10 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script type='text/javascript' src='/js/script.js?v=3'></script>
-  <script type='text/javascript' src='/js/manager.js?v=3'></script>
-  <link href="/css/style.css?v=3" rel="stylesheet">
-  <link href="/css/manager.css?v=3" rel="stylesheet">
+  <script type='text/javascript' src='/js/script.js?v=5'></script>
+  <script type='text/javascript' src='/js/manager.js?v=5'></script>
+  <link href="/css/style.css?v=5" rel="stylesheet">
+  <link href="/css/manager.css?v=5" rel="stylesheet">
 </head>
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -28,23 +28,8 @@
               <span class="user-name"></span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="#"><i class="fa-solid fa-user"></i>My Profile</a></li>
-              <li><a class="dropdown-item" href="#"><i class="fa-solid fa-gear"></i>Settings</a></li>
-              <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item" href="#" onclick="handleLogout(event)"><i class="fa-solid fa-right-from-bracket"></i>Sign Out</a></li>
             </ul>
-          </li>
-
-          <!-- Sign Up / Sign In links (shown when logged out) -->
-          <li class="nav-item" id="signInLink">
-            <a class="nav-link" href="#" onclick="handleSignIn(event)">
-              <i class="fa-solid fa-right-to-bracket me-1"></i>Sign In
-            </a>
-          </li>
-          <li class="nav-item" id="signUpLink">
-            <a class="nav-link btn btn-primary text-white ms-2 px-3" href="#" onclick="handleSignUp(event)">
-              <i class="fa-solid fa-user-plus me-1"></i>Sign Up
-            </a>
           </li>
         </ul>
       </div>

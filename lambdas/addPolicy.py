@@ -1,11 +1,17 @@
 import json
 import boto3
 from datetime import datetime
+from auth import require_agent
+from response import ok, error
+
 
 dynamo = boto3.resource("dynamodb")
 table = dynamo.Table("InsuranceSystem")
 
 def handler(event, context):
+    if not require_agent(event):
+        return error(403, "Agent access required")
+
     try:
         body = json.loads(event.get("body", "{}"))
 
@@ -20,11 +26,7 @@ def handler(event, context):
 
         missing = [f for f in required_fields if f not in body]
         if missing:
-            return {
-                "statusCode": 400,
-                "body": json.dumps({"error": f"Missing fields: {missing}"}),
-                "headers": {"Access-Control-Allow-Origin": "*"}
-            }
+            return error(400, f"Missing fields: {missing}")
 
         policy_number = body.get("policyNumber")
         
@@ -58,19 +60,12 @@ def handler(event, context):
         }
 
         table.put_item(Item=item)
-
-        return {
-            "statusCode": 200,
-            "body": json.dumps({"message": "Policy created successfully", "policyNumber": policy_number}),
-            "headers": {"Access-Control-Allow-Origin": "*"}
-        }
+        return ok({
+            "message": "Policy created successfully", "policyNumber": policy_number
+        })
 
     except Exception as e:
-        return {
-            "statusCode": 500,
-            "body": json.dumps({"error": str(e)}),
-            "headers": {"Access-Control-Allow-Origin": "*"}
-        }
+        return error(500, "Internal sever error")
 # request
 #{
 #  "body": "{\"policyNumber\":\"POL987654\",\"insured\":{\"name\":\"Eden Malka\",\"email\":\"saharmalka1975@gmail.com\",\"phone\":\"0501234567\",\"idNumber\":\"12345678\"},\"vehicle\":{\"model\":\"Toyota Corolla\",\"year\":2021,\"plateNumber\":\"12-345-67\"},\"validity\":{\"start\":\"2025-01-01\",\"end\":\"2026-01-01\"},\"insuredValue\":80000,\"deductibleValue\":1500}"

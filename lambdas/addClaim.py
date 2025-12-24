@@ -5,6 +5,9 @@ import os
 from datetime import datetime
 from uuid import uuid4
 from botocore.exceptions import ClientError
+from auth import require_agent
+from response import ok, error
+
 
 dynamo = boto3.resource("dynamodb")
 sns = boto3.client('sns', region_name='us-east-1')
@@ -99,6 +102,9 @@ Insurance Team
 
 
 def handler(event, context):
+    if not require_agent(event):
+        return error(403, "Agent access required")
+
     try:
         body = json.loads(event.get("body", "{}"))
 
@@ -196,34 +202,19 @@ def handler(event, context):
         #else:
         #    delete_topic(topic_arn)
 
-        return {
-            "statusCode": 200,
-            "body": json.dumps({
-                "message": "Claim created successfully",
-                "claimNumber": claim_number,
-                "policyNumber": policy_number,
-                "emailSent": notification_sent,
-            }),
-            "headers": {"Access-Control-Allow-Origin": "*"}
-        }
+        return ok({
+            "message": "Claim created successfully",
+            "claimNumber": claim_number,
+            "policyNumber": policy_number,
+            "emailSent": notification_sent,
+        })
 
     except ClientError as e:
         if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
             return error(409, "Claim already exists")
-        return error(500, str(e))
+        return error(500, 'Internal sever error')
     except Exception as e:
-        return error(500, str(e))
-    
-def error(status, message):
-    return {
-        "statusCode": status,
-        "headers": {"Access-Control-Allow-Origin": "*"},
-        "body": json.dumps({"error": message})
-    }
-
-    
-    
-
+        return error(500, 'Internal sever error')   
     
     # request
     # {"body": "{\"policyNumber\":\"POL987654\",\"claimNumber\":\"888777667\",\"claimDate\":\"2025-12-19\",\"description\":\"Test Claim 2\"}"}

@@ -3,6 +3,7 @@ import boto3
 from datetime import datetime, timezone
 from time import time
 from decimal import Decimal
+from response import ok, error
 
 dynamo = boto3.resource("dynamodb")
 table = dynamo.Table("InsuranceSystem")
@@ -170,29 +171,16 @@ def handler(event, context):
             }
         )
 
-        return {
-            "statusCode": 200,
-            "headers": {"Access-Control-Allow-Origin": "*"},
-            "body": json.dumps({
-                "claimNumber": claim_number,
-                "assessmentValue": assessment_value,
-                "approvedValue": approved_value,
-                "status": status,
-                "damageAreas": enriched_areas
-            })
-        }
+        return ok({
+            "claimNumber": claim_number,
+            "assessmentValue": assessment_value,
+            "approvedValue": approved_value,
+            "status": status,
+            "damageAreas": enriched_areas
+        })
 
     except Exception as e:
         return error(500, str(e))
-
-
-def error(status, message):
-    return {
-        "statusCode": status,
-        "headers": {"Access-Control-Allow-Origin": "*"},
-        "body": json.dumps({"error": message})
-    }
-
 
 
 #{
