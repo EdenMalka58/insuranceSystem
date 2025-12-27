@@ -19,7 +19,7 @@ async function apiCallAsync(method, url, data, onSuccess, onError, btn) {
       method: method,
       headers: {
         "Content-Type": "application/json",
-        Authorization: localStorage.getItem(USER_TOKEN_STIRAGE_KEY) || ''
+        "Authorization": `Bearer ${localStorage.getItem(USER_TOKEN_STIRAGE_KEY) || ''}`
       },
       body: data ? JSON.stringify(data) : null
     });
@@ -42,25 +42,6 @@ async function apiCallAsync(method, url, data, onSuccess, onError, btn) {
     return null;
   }
 }
-
-//async function callWebMethod() {
-//  $.ajax({
-//    url: `${BASE_API}/admin/statistics/drilldown`,
-//    method: "GET",
-//    headers: {
-//      "Authorization": localStorage.getItem("idToken") || ""
-//    },
-//    data: {
-//      type: type,
-//      value: value
-//    },
-//    success: data => {
-//      $("#drilldownContent").text(JSON.stringify(data, null, 2));
-//      new bootstrap.Modal("#drilldownModal").show();
-//    },
-//    error: () => alert("Failed loading drilldown data")
-//  });
-//}
 
 function setButtonLoading(btn) {
   if (!btn)
@@ -374,69 +355,3 @@ function markClaimDamagesImage(image, damages) {
 }
 
 
-function getUserTokenData() {
-  const idToken = localStorage.getItem(USER_TOKEN_STIRAGE_KEY);
-  if (idToken) {
-    const payload = JSON.parse(atob(idToken.split('.')[1]));
-    return payload;
-  }
-  return null;
-}
-
-function getUserEmail() {
-  const user = getUserTokenData();
-  if (user)
-    return user.email;
-}
-
-function getUserGroup() {
-  const user = getUserTokenData();
-  //if (user)
-  //  return user.cognito: groups
-
-}
-
-let isLoggedIn = false;
-
-function toggleUserState() {
-  isLoggedIn = !isLoggedIn;
-  updateNavbar();
-}
-
-function updateNavbar() {
-  const userDropdown = document.getElementById('userProfileDropdown');
-
-  const userImage = $('.user-profile-img');
-  const userName = $('.user-name');
-
-  const user = getUserTokenData();
-  if (!user) {
-    redirectToLogoutPage();
-    return;
-  }
-  const groups = user['cognito:groups'] || [];
-  const group = groups.length > 0 ? ` (${groups[0]}) ` : '';
-  isLoggedIn = user != null;
-  if (isLoggedIn) {
-    userName.text(`${user.email}${group}`);
-    userImage.attr('src', `https://ui-avatars.com/api/?name=${user.email}&background=0d6efd&color=fff`)
-    userDropdown.style.display = 'block';
-  } else {
-    userDropdown.style.display = 'none';
-  }
-}
-
-function handleLogout(event) {
-  event.preventDefault();
-  localStorage.removeItem(USER_TOKEN_STIRAGE_KEY);
-  toggleUserState();
-  redirectToLogoutPage();
-}
-
-function redirectToLogoutPage() {
-  const myLoginPageUri = IS_LOCALHOST ?
-    'http://localhost:62786/index.html' :
-    'https://insurance-claim-damage-pages.s3.us-east-1.amazonaws.com/index.html';
-  const cognitoHostedUIUrl = `https://us-east-1mtfe5dbmy.auth.us-east-1.amazoncognito.com/login?client_id=4r8iur2dg3h8t5ngh7qf4a3cm7&response_type=token&scope=email+openid&redirect_uri=${encodeURIComponent(myLoginPageUri)}`;
-  window.location.href = cognitoHostedUIUrl
-}

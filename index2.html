@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Insurance System Login</title>
+  <title>Damage Inspector - Administrator</title>
 </head>
 <body>
   <script>
@@ -13,11 +13,9 @@
     if (!idToken) {
       // No token found in URL params, then redirect to Cognito Hosted UI
       const myLoginPageUri = isLocalHost ?
-        'http://localhost:62786/pages/login.html' :
-        encodeURIComponent('https://insurance-claim-damage-pages.s3.us-east-1.amazonaws.com/pages/login.html');
-      const cognitoHostedUIUrl =
-        `https://us-east-1zheq80n4j.auth.us-east-1.amazoncognito.com/login?client_id=1udssiqt63d180f8gkt0qicfgl&response_type=code&scope=email+openid+phone&redirect_uri=${myLoginPageUri}`;
-      
+        'http://localhost:62786/index.html' :
+        'https://insurance-claim-damage-pages.s3.us-east-1.amazonaws.com/index.html';
+      const cognitoHostedUIUrl = `https://us-east-1mtfe5dbmy.auth.us-east-1.amazoncognito.com/login?client_id=4r8iur2dg3h8t5ngh7qf4a3cm7&response_type=token&scope=email+openid&redirect_uri=${encodeURIComponent(myLoginPageUri)}`;
       window.location.href = cognitoHostedUIUrl
     }
     else {
@@ -28,7 +26,7 @@
       localStorage.setItem('token', idToken);
 
       // Decide which page is the home page by the group
-      const homePageUrl = groups.includes('admin') ? 'manager.html' : 'agent.html'
+      const homePageUrl = groups.includes('admin') ? '/pages/manager.html' : '/pages/agent.html'
       // Redirect to home page
       window.location.href = homePageUrl;
     }

@@ -26,10 +26,10 @@ function initYearSelector() {
 
 function loadDashboard() {
   const year = $("#yearSelector").val();
-  apiCallAsync('GET', `dashboard?year=${year}`, null, buildDashboard, function () {
+  apiCallAsync('GET', `dashboard?year=${year}`, null, buildDashboard, function (result) {
     $('#countersRow').html(`
         <div class="alert alert-danger">
-            <i class="fas fa-exclamation-circle"></i> Error loading dashboard
+            <i class="fas fa-exclamation-circle"></i> ${result.error}
         </div>
      `);
     hideLoader();

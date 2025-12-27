@@ -103,10 +103,10 @@ async function viewClaims(policyNumber) {
 async function loadPolicyClaims(policyNumber) {
   addSpinner('claimsListContent');
   const url = `policies/${encodeURIComponent(policyNumber)}`;
-  await apiCallAsync('GET', url, null, displayClaimsList, function () {
+  await apiCallAsync('GET', url, null, displayClaimsList, function (result) {
     $('#claimsListContent').html(`
             <div class="alert alert-danger">
-                <i class="fas fa-exclamation-circle"></i> Error loading claims
+                <i class="fas fa-exclamation-circle"></i> ${result.error ?? result.message}
             </div>
         `);
   })
