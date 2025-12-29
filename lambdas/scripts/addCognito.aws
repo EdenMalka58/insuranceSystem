@@ -3,7 +3,7 @@ Create Cognito
 Select:  "Single-page application (SPA)"
 Name your application: "InsuranceSystemUserPool"
 Options for sign-in identifiers: Email
-Required attributes for sign-up: Email, Nikename
+Required attributes for sign-up: Email, Nickname
 Allowed callback URLs
 http://localhost:62786/index.html
 https://insurance-claim-damage-pages.s3.us-east-1.amazonaws.com/index.html
@@ -19,7 +19,7 @@ set groups to users: edenony@gmail.com admin, sahar81@gmail.com agent
 --------------------------------------
 REGION=us-east-1
 USER_POOL_NAME="InsuranceSystemUserPool"
-APP_CLIENT_NAME="InsuranceSystemSPAClient"
+APP_CLIENT_NAME="InsuranceSystem"
 
 CALLBACK_URLS="http://localhost:62786/index.html https://insurance-claim-damage-pages.s3.us-east-1.amazonaws.com/index.html"
 LOGOUT_URLS="http://localhost:62786/index.html https://insurance-claim-damage-pages.s3.us-east-1.amazonaws.com/index.html"
@@ -140,3 +140,17 @@ aws cognito-idp admin-add-user-to-group \
   --group-name agent
 
 
+
+Create domain
+-------------------------
+aws cognito-idp list-user-pools --max-results 60
+aws cognito-idp create-user-pool-domain \
+    --domain insurance-system-domain \
+    --user-pool-id us-east-1_k032kDiSf
+
+change "Branding version" to "Managed login"
+go to App Clients (App client information) and then InsuranceSystem and press Edit
+Check:
+X Choice-based sign-in: ALLOW_USER_AUTH
+X Sign in with secure remote password (SRP): ALLOW_USER_SRP_AUTH
+X Get new user tokens from existing authenticated sessions: ALLOW_REFRESH_TOKEN_AUTH

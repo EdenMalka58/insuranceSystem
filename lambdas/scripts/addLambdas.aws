@@ -1,0 +1,52 @@
+ACCOUNT_ID=263015886377
+
+upload all zip files from install directory with cloud-shell action button.
+
+add layers
+-------------------
+aws lambda publish-layer-version \
+    --layer-name auth-layer \
+    --zip-file fileb:///home/cloudshell-user/auth-layer.zip \
+    --compatible-runtimes python3.14
+
+aws lambda publish-layer-version \
+    --layer-name response-layer \
+    --zip-file fileb:///home/cloudshell-user/response-layer.zip \
+    --compatible-runtimes python3.14
+
+
+add functions
+------------------
+aws lambda create-function \
+--function-name addClaim \
+--runtime python3.14 \
+--role arn:aws:iam::"$ACCOUNT_ID":role/LabRole \
+--handler addClaim.handler \
+--zip-file fileb:///home/cloudshell-user/addClaim.zip
+
+aws lambda update-function-configuration --function-name addClaim --layers arn:aws:lambda:us-east-1:"$ACCOUNT_ID":layer:auth-layer:1 arn:aws:lambda:us-east-1:"$ACCOUNT_ID":layer:response-layer:1
+
+
+for FUNC in addClaim addPolicy deletePolicy getPolicy getPolicies updateClaimStatus updatePolicy getAdminDashboard getAdminDashboardDrilldown getAdminStatistics getAdminStatisticsDrilldown getTokenData addDamageAreas 
+do
+  echo "Creating $FUNC ..."
+  aws lambda create-function \
+    --function-name $FUNC \
+    --runtime python3.14 \
+    --role arn:aws:iam::"$ACCOUNT_ID":role/LabRole \
+    --handler $FUNC.handler \
+    --zip-file fileb:///home/cloudshell-user/$FUNC.zip
+
+  echo "Adding layers to $FUNC ..."
+  aws lambda update-function-configuration \
+    --function-name $FUNC \
+    --layers arn:aws:lambda:us-east-1:"$ACCOUNT_ID":layer:auth-layer:1 arn:aws:lambda:us-east-1:"$ACCOUNT_ID":layer:response-layer:1
+done
+
+
+ 
+
+ create dynamo 
+ create API gateways
+ create s3 buckets with all folders and pages
+ create SNS Simple Notification Service

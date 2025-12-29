@@ -37,7 +37,7 @@ def handler(event, context):
 
         items = []
 
-        # ---------- NO SEARCH → SCAN ALL POLICIES ----------
+        # ---------- NO SEARCH SCAN ALL POLICIES ----------
         if not search_query:
             scan_kwargs = {
                 "FilterExpression": (
@@ -81,7 +81,7 @@ def handler(event, context):
 
                     query_kwargs["ExclusiveStartKey"] = response["LastEvaluatedKey"]
 
-        # ---------- SORT (CRITICAL FIX) ----------
+        # ---------- SORT ----------
         items.sort(
             key=lambda x: x.get("createdAt", ""),
             reverse=True
