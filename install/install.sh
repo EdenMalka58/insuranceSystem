@@ -3,9 +3,9 @@ ACCOUNT_ID=263015886377 #MUST BE REPLACED !!!
 USER_POOL_NAME="InsuranceSystemUserPool"
 APP_CLIENT_NAME="InsuranceSystemSPAClient"
 AUTHORIZER_NAME="InsuranceSystemCognitoAuthorizer"
-BUCKET_NAME=insurance-claim-damage-pages-v2 #MUST BE REPLACED or add version !!!
-CALLBACK_URLS="https://insurance-claim-damage-pages-v2.s3.us-east-1.amazonaws.com/index.html"
-LOGOUT_URLS="https://insurance-claim-damage-pages-v2.s3.us-east-1.amazonaws.com/index.html"
+BUCKET_NAME=insurance-claim-damage-pages-v3 #MUST BE REPLACED or add version !!!
+CALLBACK_URLS="https://insurance-claim-damage-pages-v3.s3.us-east-1.amazonaws.com/index.html"
+LOGOUT_URLS="https://insurance-claim-damage-pages-v3.s3.us-east-1.amazonaws.com/index.html"
 ADMIN_EMAIL="edenony@gmail.com"
 AGENT_EMAIL="sahar81@gmail.com"
 PASSWORD="38388112Sm$"
@@ -54,6 +54,12 @@ APP_CLIENT_ID=$(aws cognito-idp create-user-pool-client \
   --output text)
 
 echo "App Client ID: $APP_CLIENT_ID"
+
+echo "Create Cognito User Pool Domain"
+aws cognito-idp create-user-pool-domain \
+    --domain $DOMAIN_PREFIX \
+    --user-pool-id $USER_POOL_ID \
+    --region $REGION
 
 echo "Create User Pool Groups"
 aws cognito-idp create-group \
@@ -115,17 +121,6 @@ aws cognito-idp admin-add-user-to-group \
   --username $AGENT_EMAIL \
   --group-name agent
 
-
-echo "Create the Cognito domain"
-aws cognito-idp create-user-pool-domain \
-    --domain $DOMAIN_PREFIX \
-    --user-pool-id $USER_POOL_ID \
-    --region $REGION
-
-echo "Verify domain creation"
-aws cognito-idp describe-user-pool-domain \
-    --domain $DOMAIN_PREFIX \
-    --region $REGION
 
 echo "Add lambdas layers"
 aws lambda publish-layer-version \
@@ -193,13 +188,13 @@ aws dynamodb create-table \
   ]'
 
 echo "Create Dynamo DB database is in process..."
-sleep 5
+sleep 10
 
 aws dynamodb update-time-to-live \
   --table-name InsuranceSystem \
   --time-to-live-specification "Enabled=true,AttributeName=expiresAt"
 
-sleep 2
+sleep 5
 
 echo "Import records to database..."
 aws lambda invoke \
@@ -217,5 +212,6 @@ echo "Extract website.zip and Upload into S3"
 unzip website.zip -d website
 aws s3 sync website/ s3://$BUCKET_NAME/
 
+echo "Insurance System setup completed."
 
   
