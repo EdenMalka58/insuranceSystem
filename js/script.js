@@ -1,7 +1,5 @@
-const BASE_API = "https://azy4fomrz8.execute-api.us-east-1.amazonaws.com/prod";
-const USER_TOKEN_STIRAGE_KEY = 'token';
+const USER_TOKEN_STORAGE_KEY = 'token';
 const CURRENCY_SIGN = "$"
-const IS_LOCALHOST = location.hostname === "localhost" || location.hostname === "127.0.0.1"
 
 const CLAIM_STATUS_OPENED = "opened";
 const CLAIM_STATUS_REJECTED = "rejected";
@@ -15,11 +13,11 @@ const APPROVED_ACTION_MANUALLY = "manually";
 async function apiCallAsync(method, url, data, onSuccess, onError, btn) {
   try {
     setButtonLoading(btn)
-    const res = await fetch(`${BASE_API}/${url}`, {
+    const res = await fetch(`${config.baseAPI}/${url}`, {
       method: method,
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem(USER_TOKEN_STIRAGE_KEY) || ''}`
+        "Authorization": `Bearer ${localStorage.getItem(USER_TOKEN_STORAGE_KEY) || ''}`
       },
       body: data ? JSON.stringify(data) : null
     });

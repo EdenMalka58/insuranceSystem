@@ -1,3 +1,149 @@
+upload install.zip
+unzip install.zip -d .
+chmod +x install.sh
+./install.sh
+
+1. fix authorizer
+2. update the config.js file in website\
+
+const config = {
+  cognitoDomain: 'https://insurance-claim-damage-auth.auth.us-east-1.amazoncognito.com',
+  clientId: '51dh2mf3q9nlqg5nqfbh7tu22s',
+  redirectUri: 'https://insurance-claim-damage-pages-v1.s3.us-east-1.amazonaws.com/index.html',
+  scope: 'email openid phone',
+  responseType: 'code',
+  baseAPI: "https://zszz1htpvi.execute-api.us-east-1.amazonaws.com/prod",
+};
+
+- go to bucket policy
+- Click Edit
+- replace Resource to bucket ARN (copy ARN button)
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicRead",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::insurance-claim-damage-pages/*"
+        }
+    ]
+}
+
+import api getaway
+
+API_ID=???
+echo "Set lambdas functions permission"
+for FUNC in addClaim addPolicy deletePolicy getPolicy getPolicies updateClaimStatus updatePolicy getAdminDashboard getAdminDashboardDrilldown getAdminStatistics getTokenData addDamageAreas importInsuranceData
+do
+  aws lambda add-permission \
+    --function-name $FUNC \
+    --statement-id apigw-$FUNC \
+    --action lambda:InvokeFunction \
+    --principal apigateway.amazonaws.com \
+    --source-arn arn:aws:execute-api:us-east-1:263015886377:$API_ID/*/*/*
+done
+
+echo "Enable CORS on ALL resources"
+RESOURCES=$(aws apigateway get-resources \
+  --rest-api-id $API_ID \
+  --query "items[].id" \
+  --output text)
+
+for RESOURCE_ID in $RESOURCES; do
+  echo "Enabling CORS for resource $RESOURCE_ID"
+
+  aws apigateway put-method \
+    --rest-api-id $API_ID \
+    --resource-id $RESOURCE_ID \
+    --http-method OPTIONS \
+    --authorization-type NONE \
+    --no-api-key-required \
+    --region $REGION 2>/dev/null || true
+
+  aws apigateway put-method-response \
+    --rest-api-id $API_ID \
+    --resource-id $RESOURCE_ID \
+    --http-method OPTIONS \
+    --status-code 200 \
+    --response-parameters '{
+      "method.response.header.Access-Control-Allow-Origin": true,
+      "method.response.header.Access-Control-Allow-Methods": true,
+      "method.response.header.Access-Control-Allow-Headers": true
+    }' \
+    --region $REGION 2>/dev/null || true
+
+  aws apigateway put-integration \
+    --rest-api-id $API_ID \
+    --resource-id $RESOURCE_ID \
+    --http-method OPTIONS \
+    --type MOCK \
+    --request-templates '{"application/json":"{\"statusCode\":200}"}' \
+    --region $REGION
+
+  aws apigateway put-integration-response \
+    --rest-api-id $API_ID \
+    --resource-id $RESOURCE_ID \
+    --http-method OPTIONS \
+    --status-code 200 \
+    --response-parameters '{
+      "method.response.header.Access-Control-Allow-Origin": "'\''*'\''",
+      "method.response.header.Access-Control-Allow-Methods": "'\''GET,POST,PUT,DELETE,OPTIONS'\''",
+      "method.response.header.Access-Control-Allow-Headers": "'\''Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'\''"
+    }' \
+    --region $REGION
+done
+
+
+
+
+
+Create role (LabRole)
+----------------------------
+1. Open IAM Console - IAM → Roles → LabRole
+2. Add inline policy - Click Add permissions → Create inline policy
+3. Policy JSON (copy-paste exactly)
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DynamoDBAccess",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:PutItem",
+        "dynamodb:GetItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:Query",
+        "dynamodb:Scan"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:us-east-1:263015886377:table/InsuranceSystem",
+        "arn:aws:dynamodb:us-east-1:263015886377:table/InsuranceSystem/index/*"
+      ]
+    },
+    {
+      "Sid": "SNSAccess",
+      "Effect": "Allow",
+      "Action": [
+        "sns:ListTopics",
+        "sns:CreateTopic",
+        "sns:ListSubscriptionsByTopic",
+        "sns:Subscribe",
+        "sns:Publish",
+        "sns:DeleteTopic"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+4.Save policy - name it InsuranceSystemDynamoAccess
+
+
+
 Create Cognito
 -----------------
 Select:  "Single-page application (SPA)"
@@ -5,10 +151,8 @@ Name your application: "InsuranceSystemUserPool"
 Options for sign-in identifiers: Email
 Required attributes for sign-up: Email, Nikename
 Allowed callback URLs
-http://localhost:62786/index.html
 https://insurance-claim-damage-pages.s3.us-east-1.amazonaws.com/index.html
 Allowed sign-out URLs
-http://localhost:62786/index.html
 https://insurance-claim-damage-pages.s3.us-east-1.amazonaws.com/index.html
 Add groups: admin, agent
 Add 2 users with password : edenony@gmail.com, sahar81@gmail.com 38388112Sm$
@@ -19,10 +163,11 @@ set groups to users: edenony@gmail.com admin, sahar81@gmail.com agent
 --------------------------------------
 REGION=us-east-1
 USER_POOL_NAME="InsuranceSystemUserPool"
-APP_CLIENT_NAME="InsuranceSystemSPAClient"
+APP_CLIENT_NAME="`InsuranceSystemSPAClient`"
 
 CALLBACK_URLS="http://localhost:62786/index.html https://insurance-claim-damage-pages.s3.us-east-1.amazonaws.com/index.html"
 LOGOUT_URLS="http://localhost:62786/index.html https://insurance-claim-damage-pages.s3.us-east-1.amazonaws.com/index.html"
+
 
 ADMIN_EMAIL="edenony@gmail.com"
 AGENT_EMAIL="sahar81@gmail.com"
@@ -139,12 +284,277 @@ aws cognito-idp admin-add-user-to-group \
   --username $AGENT_EMAIL \
   --group-name agent
 
-
-
-
 Create API Gateway Authorizer
 ----------------------
 Create Authorizer with 
 name InsuranceSystemCognitoAuthorizer 
 Token source : Authorization based on "InsuranceSystemUserPool"
+echo "Create API Gateway Authorizer"
+aws apigateway create-authorizer \
+  --rest-api-id "zszz1htpvi" \
+  --name $AUTHORIZER_NAME \
+  --type COGNITO_USER_POOLS \
+  --identity-source "method.request.header.Authorization" \
+  --provider-arns arn:aws:cognito-idp:$REGION:$ACCOUNT_ID:userpool/$USER_POOL_ID \
+  --region $REGION
+
+
+
+Create API Gateway
+-----------------
+in file InsuranceSystemAPI-openapi.json replace the lambda arn from 263015886377 to the new arn number.
+
+1. API Gateway → Create API
+2. Choose REST API
+3. Select Import
+4. Upload InsuranceSystemAPI-openapi.json
+5. Choose Ignore warnings
+6. Create
+7. Enable CORS
+
+
+Create Lambdas
+---------------------------
+1. upload all zip files from install directory with cloud-shell action button.
+
+2. add layers
+
+aws lambda publish-layer-version \
+    --layer-name auth-layer \
+    --zip-file fileb:///home/cloudshell-user/auth-layer.zip \
+    --compatible-runtimes python3.14
+
+aws lambda publish-layer-version \
+    --layer-name response-layer \
+    --zip-file fileb:///home/cloudshell-user/response-layer.zip \
+    --compatible-runtimes python3.14
+
+ACCOUNT_ID=263015886377 <REPLACE>
+for FUNC in addClaim addPolicy deletePolicy getPolicy getPolicies updateClaimStatus updatePolicy getAdminDashboard getAdminDashboardDrilldown getAdminStatistics getAdminStatisticsDrilldown getTokenData addDamageAreas importInsuranceData
+do
+  echo "Creating $FUNC ..."
+  aws lambda create-function \
+    --function-name $FUNC \
+    --runtime python3.14 \
+    --role arn:aws:iam::"$ACCOUNT_ID":role/LabRole \
+    --handler $FUNC.handler \
+    --zip-file fileb:///home/cloudshell-user/$FUNC.zip
+
+  echo "Adding layers to $FUNC ..."
+  aws lambda update-function-configuration \
+    --function-name $FUNC \
+    --layers arn:aws:lambda:us-east-1:"$ACCOUNT_ID":layer:auth-layer:1 arn:aws:lambda:us-east-1:"$ACCOUNT_ID":layer:response-layer:1
+done
+
+
+Create Dynamo DB database
+----------------------------
+aws dynamodb create-table \
+  --table-name InsuranceSystem \
+  --billing-mode PAY_PER_REQUEST \
+  --attribute-definitions \
+    AttributeName=PK,AttributeType=S \
+    AttributeName=SK,AttributeType=S \
+    AttributeName=GSI1PK,AttributeType=S \
+    AttributeName=GSI1SK,AttributeType=S \
+    AttributeName=GSI2PK,AttributeType=S \
+    AttributeName=GSI2SK,AttributeType=S \
+  --key-schema \
+    AttributeName=PK,KeyType=HASH \
+    AttributeName=SK,KeyType=RANGE \
+  --global-secondary-indexes '[
+    {
+      "IndexName": "GSI1_UserPolicies",
+      "KeySchema": [
+        { "AttributeName": "GSI1PK", "KeyType": "HASH" },
+        { "AttributeName": "GSI1SK", "KeyType": "RANGE" }
+      ],
+      "Projection": { "ProjectionType": "ALL" }
+    },
+    {
+      "IndexName": "GSI2_PolicyClaims",
+      "KeySchema": [
+        { "AttributeName": "GSI2PK", "KeyType": "HASH" },
+        { "AttributeName": "GSI2SK", "KeyType": "RANGE" }
+      ],
+      "Projection": { "ProjectionType": "ALL" }
+    }
+  ]'
+
+aws dynamodb update-time-to-live \
+  --table-name InsuranceSystem \
+  --time-to-live-specification "Enabled=true,AttributeName=expiresAt"
+
+aws lambda invoke --function-name importInsuranceData --cli-binary-format raw-in-base64-out --payload file://policy.json response.json
+
+ 
+Create S3 bucket
+----------------------------
+1. create the bucket with name "insurance-claim-damage-pages"
+BUCKET_NAME=insurance-claim-damage-pages
+aws s3api create-bucket \
+  --bucket $BUCKET_NAME \
+  --region us-east-1
+
+2. upload website.zip and extract into S3
+unzip website.zip -d website
+3. Upload the extracted files recursively to S3
+aws s3 sync website/ s3://$BUCKET_NAME/
+4. Verify
+aws s3 ls s3://$BUCKET_NAME/
+5. Enable static website hosting
+aws s3 website s3://$BUCKET_NAME/ \
+  --index-document index.html \
+  --error-document index.html
+6. Public access  - set off the Block public access (bucket settings)
+- Go to S3 Console → Bucket → Permissions → Block Public Access
+- Click Edit
+- Uncheck all
+- Save changes
+
+- go to bucket policy
+- Click Edit
+- replace Resource to bucket ARN (copy ARN button)
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicRead",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::insurance-claim-damage-pages/*"
+        }
+    ]
+}
+
+
+7. get website URL
+aws s3api get-bucket-website --bucket $BUCKET_NAME
+
+
+Create API getaway production stage
+------------------------------------
+1. aws apigateway get-rest-apis
+{
+  "items": [
+    {
+      "id": "6xlj4us919",
+      "name": "InsuranceSystemAPI",
+      "description": "My API",
+      "createdDate": "2025-12-31T06:00:00Z"
+    }
+  ]
+}
+the "id" — this is your API_ID.
+aws apigateway create-deployment \
+  --rest-api-id 6xlj4us919 \
+  --stage-name prod \
+  --description "Production stage"
+
+- the invoke URL
+https://6xlj4us919.execute-api.us-east-1.amazonaws.com/prod
+
+replace the BASE_API in config.js file
+replace the cognito app client configuration in the config.js file
+
+// Configuration
+const IS_LOCALHOST = location.hostname === "localhost" || location.hostname === "127.0.0.1"
+const BASE_API = "https://6xlj4us919.execute-api.us-east-1.amazonaws.com/prod";
+
+const config = {
+  cognitoDomain: 'https://insurance-system-domain.auth.us-east-1.amazoncognito.com',
+  clientId: '7vqd0pi862rgeu7cje49pahmtj',
+  redirectUri: IS_LOCALHOST
+    ? 'http://localhost:62786/index.html'
+    : 'https://insurance-claim-damage-pages.s3.us-east-1.amazonaws.com/index.html',
+  scope: 'email openid profile',
+  responseType: 'code'
+};
+
+2. Deploy API
+
+#!/bin/bash
+
+# ----------------------------
+# CONFIG
+# ----------------------------
+API_ID="6xlj4us919"
+STAGE_NAME="prod"
+REGION="us-east-1"
+
+# ----------------------------
+# Loop over all resources
+# ----------------------------
+RESOURCE_IDS=$(aws apigateway get-resources \
+  --rest-api-id $API_ID \
+  --region $REGION \
+  --query "items[].id" \
+  --output text)
+
+for RESOURCE_ID in $RESOURCE_IDS; do
+  # Get all HTTP methods for this resource
+  METHODS=$(aws apigateway get-resource \
+    --rest-api-id $API_ID \
+    --resource-id $RESOURCE_ID \
+    --region $REGION \
+    --query "resourceMethods | keys(@)" \
+    --output text)
+
+  for HTTP_METHOD in $METHODS; do
+    echo "✅ Enabling CORS for $HTTP_METHOD on resource $RESOURCE_ID"
+
+    # 1️⃣ Add OPTIONS method if not exists
+    aws apigateway put-method \
+      --rest-api-id $API_ID \
+      --resource-id $RESOURCE_ID \
+      --http-method OPTIONS \
+      --authorization-type "NONE" \
+      --region $REGION \
+      2>/dev/null || true
+
+    # 2️⃣ Add MOCK integration for OPTIONS
+    aws apigateway put-integration \
+      --rest-api-id $API_ID \
+      --resource-id $RESOURCE_ID \
+      --http-method OPTIONS \
+      --type MOCK \
+      --request-templates '{"application/json": "{\"statusCode\": 200}"}' \
+      --region $REGION \
+      2>/dev/null || true
+
+    # 3️⃣ Add CORS headers to OPTIONS response
+    aws apigateway put-method-response \
+      --rest-api-id $API_ID \
+      --resource-id $RESOURCE_ID \
+      --http-method OPTIONS \
+      --status-code 200 \
+      --response-parameters \
+        method.response.header.Access-Control-Allow-Headers=true \
+        method.response.header.Access-Control-Allow-Methods=true \
+        method.response.header.Access-Control-Allow-Origin=true \
+      --region $REGION \
+      2>/dev/null || true
+
+    aws apigateway put-integration-response \
+      --rest-api-id $API_ID \
+      --resource-id $RESOURCE_ID \
+      --http-method OPTIONS \
+      --status-code 200 \
+      --response-parameters 'method.response.header.Access-Control-Allow-Headers'="'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",'method.response.header.Access-Control-Allow-Methods'="'GET,POST,PUT,DELETE,OPTIONS'",'method.response.header.Access-Control-Allow-Origin'="'*'" \
+      --region $REGION \
+      2>/dev/null || true
+  done
+done
+
+# ----------------------------
+# Deploy API
+# ----------------------------
+echo "🚀 Deploying API to stage $STAGE_NAME"
+aws apigateway create-deployment \
+  --rest-api-id $API_ID \
+  --stage-name $STAGE_NAME \
+  --region $REGION
+
 

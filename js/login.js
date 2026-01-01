@@ -1,17 +1,4 @@
-﻿// Configuration
-const isLocalHost = location.hostname === "localhost" || location.hostname === "127.0.0.1";
-
-const config = {
-  cognitoDomain: 'https://us-east-1z6m8owbky.auth.us-east-1.amazoncognito.com',
-  clientId: '3bu29jc53ei1bap4es6tlqm0f5',
-  redirectUri: isLocalHost
-    ? 'http://localhost:62786/index.html'
-    : 'https://insurance-claim-damage-pages.s3.us-east-1.amazonaws.com/index.html',
-  scope: 'email openid phone',
-  responseType: 'code'
-};
-
-// Sign in function
+﻿// Sign in function
 async function signIn() {
   const state = generateRandomString(32);
   const codeVerifier = generateRandomString(128);
@@ -39,6 +26,8 @@ async function signIn() {
 function signOut() {
   // Clear tokens
   sessionStorage.clear();
+  localStorage.removeItem(USER_TOKEN_STORAGE_KEY);
+  toggleUserState();
 
   // Redirect to Cognito logout
   const params = new URLSearchParams({
@@ -258,7 +247,7 @@ async function handleCallback() {
 
 
 function getUserTokenData() {
-  const idToken = localStorage.getItem(USER_TOKEN_STIRAGE_KEY);
+  const idToken = localStorage.getItem(USER_TOKEN_STORAGE_KEY);
   if (idToken) {
     const payload = JSON.parse(atob(idToken.split('.')[1]));
     return payload;
@@ -294,7 +283,7 @@ function updateNavbar() {
 
   const user = getUserTokenData();
   if (!user) {
-    redirectToLogoutPage();
+    signOut();
     return;
   }
   const groups = user['cognito:groups'] || [];
@@ -308,23 +297,6 @@ function updateNavbar() {
     userDropdown.style.display = 'none';
   }
 }
-
-function handleLogout(event) {
-  event.preventDefault();
-  localStorage.removeItem(USER_TOKEN_STIRAGE_KEY);
-  toggleUserState();
-  redirectToLogoutPage();
-}
-
-function redirectToLogoutPage() {
-  const myLoginPageUri = IS_LOCALHOST ?
-    'http://localhost:62786/index.html' :
-    'https://insurance-claim-damage-pages.s3.us-east-1.amazonaws.com/index.html';
-  const cognitoHostedUIUrl = `https://us-east-1mtfe5dbmy.auth.us-east-1.amazoncognito.com/login?client_id=4r8iur2dg3h8t5ngh7qf4a3cm7&response_type=token&scope=email+openid&redirect_uri=${encodeURIComponent(myLoginPageUri)}`;
-  window.location.href = cognitoHostedUIUrl
-}
-
-
 
 // helper functions
 

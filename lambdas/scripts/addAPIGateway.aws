@@ -6,7 +6,6 @@ in file InsuranceSystemAPI-openapi.json replace the lambda arn from 263015886377
 2. Choose REST API
 3. Select Import
 4. Upload InsuranceSystemAPI-openapi.json
-5. Create
-
-
+5. Choose Ignore warnings
+6. Create
 
