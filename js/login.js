@@ -27,7 +27,6 @@ function signOut() {
   // Clear tokens
   sessionStorage.clear();
   localStorage.removeItem(USER_TOKEN_STORAGE_KEY);
-  toggleUserState();
 
   // Redirect to Cognito logout
   const params = new URLSearchParams({

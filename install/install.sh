@@ -1,34 +1,29 @@
-REGION=us-east-1
-ACCOUNT_ID=263015886377 #MUST BE REPLACED !!!
-USER_POOL_NAME="InsuranceSystemUserPool"
-APP_CLIENT_NAME="InsuranceSystemSPAClient"
-AUTHORIZER_NAME="InsuranceSystemCognitoAuthorizer"
-BUCKET_NAME=insurance-claim-damage-pages-v3 #MUST BE REPLACED or add version !!!
-CALLBACK_URLS="https://insurance-claim-damage-pages-v3.s3.us-east-1.amazonaws.com/index.html"
-LOGOUT_URLS="https://insurance-claim-damage-pages-v3.s3.us-east-1.amazonaws.com/index.html"
+VERSION="v8"
+REGION="us-east-1"
+ACCOUNT_ID="263015886377" #MUST BE REPLACED !!!
+USER_POOL_NAME="InsuranceSystemUserPool-$VERSION"
+APP_CLIENT_NAME="InsuranceSystemSPAClient-$VERSION"
+AUTHORIZER_NAME="InsuranceSystemCognitoAuthorizer-$VERSION"
+BUCKET_NAME="insurance-claim-damage-pages-$VERSION"
+DOMAIN_PREFIX="insurance-claim-damage-$VERSION"
+CALLBACK_URLS="https://insurance-claim-damage-pages-$VERSION.s3.us-east-1.amazonaws.com/index.html"
+LOGOUT_URLS="https://insurance-claim-damage-pages-$VERSION.s3.us-east-1.amazonaws.com/index.html"
 ADMIN_EMAIL="edenony@gmail.com"
 AGENT_EMAIL="sahar81@gmail.com"
 PASSWORD="38388112Sm$"
-DOMAIN_PREFIX=insurance-claim-damage
+
 
 echo "Create Cognito User Pool (Email sign-in, required attributes)"
 USER_POOL_ID=$(aws cognito-idp create-user-pool \
   --region $REGION \
   --pool-name "$USER_POOL_NAME" \
-  --username-attributes email \
-  --auto-verified-attributes email \
-  --schema \
-      Name=email,AttributeDataType=String,Required=true \
-      Name=nickname,AttributeDataType=String,Required=true \
-  --policies '{
-    "PasswordPolicy": {
-      "MinimumLength": 8,
-      "RequireUppercase": true,
-      "RequireLowercase": true,
-      "RequireNumbers": true,
-      "RequireSymbols": true
-    }
-  }' \
+  --username-attributes "email" \
+  --auto-verified-attributes "email" \
+  --deletion-protection "ACTIVE" \
+  --user-pool-tier "ESSENTIALS" \
+  --schema '{"Name":"email","Required":true}' '{"Name":"nickname","Required":true}' \
+  --username-configuration '{"CaseSensitive":false}' \
+  --admin-create-user-config '{"AllowAdminCreateUserOnly":false}' \
   --query "UserPool.Id" \
   --output text)
 
@@ -36,20 +31,25 @@ echo "User Pool ID: $USER_POOL_ID"
 
 echo "Create App Client (SPA / public client)"
 APP_CLIENT_ID=$(aws cognito-idp create-user-pool-client \
-  --region $REGION \
-  --user-pool-id $USER_POOL_ID \
   --client-name "$APP_CLIENT_NAME" \
-    --explicit-auth-flows \
-      ALLOW_USER_PASSWORD_AUTH \
-      ALLOW_REFRESH_TOKEN_AUTH \
-      ALLOW_USER_SRP_AUTH \
-  --supported-identity-providers COGNITO \
+  --user-pool-id $USER_POOL_ID \
+  --no-generate-secret \
+  --explicit-auth-flows \
+      'ALLOW_REFRESH_TOKEN_AUTH' \
+      'ALLOW_USER_SRP_AUTH' \
+      'ALLOW_USER_AUTH' \
+  --auth-session-validity 3  \
+  --refresh-token-validity 5  \
+  --access-token-validity 60  \
+  --id-token-validity 60  \
+  --token-validity-units '{"RefreshToken":"days","AccessToken":"minutes","IdToken":"minutes"}'  \
+  --prevent-user-existence-errors ENABLED \
+  --allowed-o-auth-flows code \
+  --allowed-o-auth-scopes 'openid' 'phone' 'email' \
+  --allowed-o-auth-flows-user-pool-client \
+  --supported-identity-providers 'COGNITO' \
   --callback-urls "$CALLBACK_URLS" \
   --logout-urls "$LOGOUT_URLS" \
-  --allowed-o-auth-flows code \
-  --allowed-o-auth-scopes email openid profile \
-  --allowed-o-auth-flows-user-pool-client \
-  --prevent-user-existence-errors ENABLED \
   --query "UserPoolClient.ClientId" \
   --output text)
 
@@ -59,7 +59,8 @@ echo "Create Cognito User Pool Domain"
 aws cognito-idp create-user-pool-domain \
     --domain $DOMAIN_PREFIX \
     --user-pool-id $USER_POOL_ID \
-    --region $REGION
+    --region $REGION \
+    --managed-login-version 2
 
 echo "Create User Pool Groups"
 aws cognito-idp create-group \
@@ -188,13 +189,12 @@ aws dynamodb create-table \
   ]'
 
 echo "Create Dynamo DB database is in process..."
-sleep 10
+aws dynamodb wait table-exists --table-name InsuranceSystem
 
 aws dynamodb update-time-to-live \
   --table-name InsuranceSystem \
   --time-to-live-specification "Enabled=true,AttributeName=expiresAt"
 
-sleep 5
 
 echo "Import records to database..."
 aws lambda invoke \
@@ -212,6 +212,30 @@ echo "Extract website.zip and Upload into S3"
 unzip website.zip -d website
 aws s3 sync website/ s3://$BUCKET_NAME/
 
-echo "Insurance System setup completed."
+aws s3 website s3://$BUCKET_NAME/ --index-document index.html --error-document index.html
+aws s3api put-public-access-block \
+    --bucket $BUCKET_NAME \
+    --public-access-block-configuration '{
+        "BlockPublicAcls": false,
+        "IgnorePublicAcls": false,
+        "BlockPublicPolicy": false,
+        "RestrictPublicBuckets": false
+    }'
+aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy '{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Sid": "PublicRead",
+    "Effect": "Allow",
+    "Principal": "*",
+    "Action": "s3:GetObject",
+    "Resource": "arn:aws:s3:::'"$BUCKET_NAME"'/*"
+  }]
+}'
+
+echo "-----------------------------------------------"
+echo "Insurance System setup completed successfully."
+echo "-----------------------------------------------"
+echo "Open this link: $CALLBACK_URLS"
+
 
   
