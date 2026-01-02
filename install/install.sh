@@ -1,4 +1,4 @@
-VERSION="v8"
+VERSION="v01"
 REGION="us-east-1"
 ACCOUNT_ID="263015886377" #MUST BE REPLACED !!!
 USER_POOL_NAME="InsuranceSystemUserPool-$VERSION"
@@ -235,7 +235,7 @@ aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy '{
 echo "-----------------------------------------------"
 echo "Insurance System setup completed successfully."
 echo "-----------------------------------------------"
-echo "Open this link: $CALLBACK_URLS"
+
 
 
   
