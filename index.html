@@ -1,31 +1,118 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-  <title>Damage Inspector - Login</title>
-  <link href="css/style.css" rel="stylesheet" />
-  <script src="config.js?v=8"></script>
-  <script src="js/login.js?v=8"></script>
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Damage Inspector - Welcome</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <script type='text/javascript' src="config.js"></script>
+  <script type='text/javascript' src='js/script.js?v=12'></script>
+  <script type='text/javascript' src='js/login.js?v=12'></script>
+  <link href="/css/style.css?v=12" rel="stylesheet">
+  <link href="/css/index.css?v=12" rel="stylesheet">
 </head>
 <body>
-  <div class="loading" id="loadingDiv">
-    <div class="spinner"></div>
-    <p>Authenticating...</p>
-  </div>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <i class="fa-solid fa-car-burst me-2"></i> Damage Inspector
+      </a>
+    </div>
+  </nav>
+
+  <header class="welcome-section text-center">
+    <div class="container">
+      <h1 class="display-4 fw-bold">Streamline Your Vehicle Claims Process</h1>
+      <p class="lead mb-4">Comprehensive insurance management platform with powerful calculator damage assessment and real-time analytics for smarter decision-making.</p>
+
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <button id="signIn-btn" class="btn btn-primary btn-lg px-4 gap-3">
+          <i class="fa-solid fa-arrow-right-to-bracket me-2"></i>sign In
+        </button>
+        <button id="signUp-btn" class="btn btn-light btn-lg px-4">
+          <i class="fa-solid fa-user-plus me-2"></i> Create Account
+        </button>
+      </div>
+
+      <div id="welcome-message" class="mt-4 alert alert-light d-inline-block">
+        <i class="fa-solid fa-circle-info me-2"></i>
+        <span>
+          Get started by signing in or creating a new account
+        </span>
+      </div>
+      <div id="welcome-loading" class="loading">
+        <div class="spinner"></div>
+        <p>Authenticating...</p>
+      </div>
+    </div>
+  </header>
+
+
+  <section class="features-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Everything You Need in One Platform</h2>
+        <p class="section-subtitle">
+          Powerful tools designed to simplify insurance operations and accelerate claims processing
+        </p>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="feature-card">
+            <div class="feature-icon feature-icon-policies">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h3 class="feature-title text-center">Policy Management</h3>
+            <p class="feature-description text-center">
+              Manage insurance policies with ease. Track coverage, renewals, and policyholder information all in one centralized system.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="feature-card">
+            <div class="feature-icon feature-icon-damages">
+              <i class="fa-solid fa-car-burst"></i>
+            </div>
+            <h3 class="feature-title text-center">Damage Assessment</h3>
+            <p class="feature-description text-center">
+              Powerful calculator vehicle damage inspection and estimation. Generate accurate repair quotes and streamline the claims approval process.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="feature-card">
+            <div class="feature-icon feature-icon-dashboard">
+              <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <h3 class="feature-title text-center">Analytics Dashboard</h3>
+            <p class="feature-description text-center">
+              Gain actionable insights with comprehensive analytics. Monitor performance metrics, track trends, and make data-driven decisions in real-time.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    
-
-    // Initialize
-    handleCallback();
+    $(document).ready(function () {
+      $('#signIn-btn').on('click', async function () {
+        await signIn();
+      });
+      $('#signUp-btn').on('click', function () {
+        signUp();
+      });
+      handleCognitoCallback();
+    });
   </script>
+
 </body>
 </html>

@@ -205,6 +205,76 @@ function redirectToHomePage(idToken) {
 }
 
 // Handle OAuth callback
+async function handleCognitoCallback() {
+  $('#welcome-loading').show();
+  const urlParams = new URLSearchParams(window.location.search);
+  const code = urlParams.get('code');
+  const state = urlParams.get('state');
+  const error = urlParams.get('error');
+
+  function errorMessage(message) {
+    $('#welcome-message').removeClass('alert-light').addClass('alert-danger')
+      .find('span').text(message);
+    $('#welcome-loading').hide();
+  }
+
+  if (error) {
+    errorMessage('Authentication failed: ' + error);
+    return;
+  }
+
+  if (code && state) {
+    const savedState = sessionStorage.getItem('pkce_state');
+
+
+    const hasMismatch = state !== savedState;
+
+    if (hasMismatch) {
+      errorMessage('Security error: State mismatch');
+      return;
+    }
+
+    try {
+      const tokens = await exchangeCodeForTokens(code);
+
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+
+      const idToken = tokens.id_token;
+      const payload = parseJwt(idToken);
+      if (!payload) {
+        errorMessage('Invalid token received');
+        return;
+      }
+
+      const groups = payload['cognito:groups'] || [];
+
+      // Store token in localStorage for use in the redirected page
+      localStorage.setItem('token', idToken);
+
+      // Redirect based on role
+      // Decide which page is the home page by the group
+      if (groups.includes('admin')) {
+        window.location.href = '/pages/manager.html'; // Redirect to agent home page
+      }
+      else if (groups.includes('agent')) {
+        window.location.href = '/pages/agent.html'; // Redirect to admin home page
+      }
+      else {
+        $('#welcome-message').find('span').text(`Welcome ${payload.email}!, To obtain appropriate permissions to use the system, please contact the administrator.`);
+        $('#welcome-loading').hide();
+      }
+    } catch (error) {
+      console.error('Error during token exchange:', error);
+      errorMessage('Failed to complete authentication. Please try again.');
+    }
+  }
+  else {
+    $('#welcome-loading').hide();
+  }
+}
+
+// Handle OAuth callback
 async function handleCallback() {
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
