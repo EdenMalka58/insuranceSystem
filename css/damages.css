@@ -1,8 +1,4 @@
-﻿body {
-}
-
-
-.impacts-image-container {
+﻿.impacts-image-container {
   position: relative;
   transform: rotate(180deg);
   border-radius: 6px;

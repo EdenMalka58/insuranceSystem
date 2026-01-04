@@ -117,7 +117,7 @@ function removeSpinner(elementId) {
 }
 
 
-
+// Damages areas constants
 const AREA_FRONT = "front";
 const AREA_FRONT_LEFT = "frontLeft";
 const AREA_FRONT_RIGHT = "frontRight";
@@ -176,7 +176,7 @@ function formatDateTime(dateString) {
   return new Date(dateString).toLocaleString('en-US');
 }
 
-function getPolicyDetailsHTML(policy, asAgent) {
+function getPolicyDetailsHTML(policy, isEditMode) {
   if (!policy) return '';
   const isActive = new Date(policy.validity.end) > new Date();
   const statusClass = isActive ? 'status-active' : 'status-expired';
@@ -232,7 +232,7 @@ function getPolicyDetailsHTML(policy, asAgent) {
                     <strong>Opened:</strong>&nbsp;${formatDate(policy.createdAt)}
                 </div>
             </div>
-            ${asAgent ? `<div class="d-flex w-100 justify-content-between">
+            ${isEditMode ? `<div class="d-flex w-100 justify-content-between">
                 <div class="action-buttons">
                     <button class="btn btn-primary btn-sm" onclick='openClaimModal(${JSON.stringify(policy.policyNumber)})'>
                         <i class="fas fa-file-medical"></i> Open Claim
@@ -255,7 +255,7 @@ function getPolicyDetailsHTML(policy, asAgent) {
 
 }
 
-function getClaimDetailsHTML(claim, asAgent, policy) {
+function getClaimDetailsHTML(claim, isEditMode, policy) {
   if (!claim) return '';
 
   const statusClass = `status-${claim.status}`;
@@ -291,7 +291,7 @@ function getClaimDetailsHTML(claim, asAgent, policy) {
                     <small><strong>Approved action:</strong> ${claim.approvedAction}</small>
                 </div>
                 <div class="col-md-6">
-                    ${asAgent && claim.approvedAction === APPROVED_ACTION_WAITING ? `
+                    ${isEditMode && claim.approvedAction === APPROVED_ACTION_WAITING ? `
                       <button class="btn btn-primary btn-sm me-2"
                         onclick='approveClaim($(this),${JSON.stringify(policy.policyNumber)}, ${JSON.stringify(claim.claimNumber)}, ${JSON.stringify(claim.assessmentValue)})'>
                         <i class="fa-solid fa-thumbs-up"></i> Approve claim

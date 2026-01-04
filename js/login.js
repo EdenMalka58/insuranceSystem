@@ -5,9 +5,9 @@ async function signIn() {
   const codeChallenge = await generateCodeChallenge(codeVerifier);
 
   // Store state and verifier in sessionStorage
-  sessionStorage.setItem('pkce_state', state);
-  sessionStorage.setItem('pkce_code_verifier', codeVerifier);
-  sessionStorage.setItem('remember_me', 'true');
+  sessionStorage.setItem("pkce_state", state);
+  sessionStorage.setItem("pkce_code_verifier", codeVerifier);
+  sessionStorage.setItem("remember_me", "true");
 
   // Build authorization URL
   const params = new URLSearchParams({
@@ -17,7 +17,7 @@ async function signIn() {
     redirect_uri: config.redirectUri,
     state: state,
     code_challenge: codeChallenge,
-    code_challenge_method: 'S256'
+    code_challenge_method: "S256",
   });
 
   window.location.href = `${config.cognitoDomain}/login?${params.toString()}`;
@@ -31,7 +31,7 @@ function signOut() {
   // Redirect to Cognito logout
   const params = new URLSearchParams({
     client_id: config.clientId,
-    logout_uri: config.redirectUri
+    logout_uri: config.redirectUri,
   });
 
   window.location.href = `${config.cognitoDomain}/logout?${params.toString()}`;
@@ -43,194 +43,79 @@ function signUp() {
     client_id: config.clientId,
     response_type: config.responseType,
     scope: config.scope,
-    redirect_uri: config.redirectUri
+    redirect_uri: config.redirectUri,
   });
 
   window.location.href = `${config.cognitoDomain}/signup?${params.toString()}`;
 }
 
-
-// Check if user has a valid session (for "Remember Me" functionality)
-async function checkExistingSession() {
-  const token = localStorage.getItem('token');
-  if (token) {
-    try {
-      const payload = parseJwt(token);
-      const currentTime = Math.floor(Date.now() / 1000);
-
-      // Check if token is still valid
-      if (payload.exp && payload.exp > currentTime) {
-        // Token is still valid, redirect to home page
-        const groups = payload['cognito:groups'] || [];
-        const homePageUrl = groups.includes('admin') ? '/pages/manager.html' : '/pages/agent.html';
-        window.location.href = homePageUrl;
-        return true;
-      } else {
-        // Token expired, try to refresh
-        const refreshToken = localStorage.getItem('refresh_token');
-        if (refreshToken) {
-          await refreshAccessToken(refreshToken);
-          return true;
-        }
-      }
-    } catch (e) {
-      console.error('Error checking session:', e);
-    }
-  }
-  return false;
-}
-
-// Get valid access token (refresh if needed)
-async function getValidAccessToken() {
-  let accessToken = localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
-
-  // Check if token exists and is not expired
-  if (accessToken && !isTokenExpired(accessToken)) {
-    return accessToken;
-  }
-
-  // Try to refresh token
-  const refreshToken = localStorage.getItem('refresh_token');
-  if (refreshToken) {
-    try {
-      const newTokens = await refreshAccessToken(refreshToken);
-      return newTokens.access_token;
-    } catch (error) {
-      console.error('Failed to refresh token:', error);
-      // Redirect to login
-      window.location.href = '/index.html';
-      return null;
-    }
-  }
-
-  // No valid token, redirect to login
-  window.location.href = '/index.html';
-  return null;
-}
-
-// Refresh access token using refresh token
-async function refreshAccessToken(refreshToken) {
-  const params = new URLSearchParams({
-    grant_type: 'refresh_token',
-    client_id: config.clientId,
-    refresh_token: refreshToken
-  });
-
-  try {
-    const response = await fetch(`${config.cognitoDomain}/oauth2/token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: params.toString()
-    });
-
-    if (!response.ok) {
-      throw new Error('Token refresh failed');
-    }
-
-    const tokens = await response.json();
-
-    // Update stored tokens
-    localStorage.setItem('token', tokens.id_token);
-    localStorage.setItem('access_token', tokens.access_token);
-
-    // Redirect to home page
-    redirectToHomePage(tokens.id_token);
-
-    return tokens;
-  } catch (error) {
-    console.error('Error refreshing token:', error);
-    localStorage.clear();
-    throw error;
-  }
-}
-
 // Exchange authorization code for tokens
 async function exchangeCodeForTokens(code) {
-  const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
+  const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
 
   const params = new URLSearchParams({
-    grant_type: 'authorization_code',
+    grant_type: "authorization_code",
     client_id: config.clientId,
     code: code,
     redirect_uri: config.redirectUri,
-    code_verifier: codeVerifier
+    code_verifier: codeVerifier,
   });
 
   try {
     const response = await fetch(`${config.cognitoDomain}/oauth2/token`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
+        "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: params.toString()
+      body: params.toString(),
     });
 
     if (!response.ok) {
-      throw new Error('Token exchange failed');
+      throw new Error("Token exchange failed");
     }
 
     const tokens = await response.json();
 
     // Clean up PKCE data
-    sessionStorage.removeItem('pkce_state');
-    sessionStorage.removeItem('pkce_code_verifier');
+    sessionStorage.removeItem("pkce_state");
+    sessionStorage.removeItem("pkce_code_verifier");
 
     return tokens;
   } catch (error) {
-    console.error('Error exchanging code for tokens:', error);
+    console.error("Error exchanging code for tokens:", error);
     throw error;
   }
 }
 
-// Redirect to appropriate page based on user role
-function redirectToHomePage(idToken) {
-  const payload = parseJwt(idToken);
-  if (!payload) {
-    showError('Invalid token received');
-    return;
-  }
-
-  const groups = payload['cognito:groups'] || [];
-
-  // Store token in localStorage for use in the redirected page
-  localStorage.setItem('token', idToken);
-
-  // Decide which page is the home page by the group
-  const homePageUrl = groups.includes('admin') ? '/pages/manager.html' : '/pages/agent.html';
-
-  // Redirect to home page
-  window.location.href = homePageUrl;
-}
-
 // Handle OAuth callback
 async function handleCognitoCallback() {
-  $('#welcome-loading').show();
+  $("#welcome-loading").show();
   const urlParams = new URLSearchParams(window.location.search);
-  const code = urlParams.get('code');
-  const state = urlParams.get('state');
-  const error = urlParams.get('error');
+  const code = urlParams.get("code");
+  const state = urlParams.get("state");
+  const error = urlParams.get("error");
 
   function errorMessage(message) {
-    $('#welcome-message').removeClass('alert-light').addClass('alert-danger')
-      .find('span').text(message);
-    $('#welcome-loading').hide();
+    $("#welcome-message")
+      .removeClass("alert-light")
+      .addClass("alert-danger")
+      .find("span")
+      .text(message);
+    $("#welcome-loading").hide();
   }
 
   if (error) {
-    errorMessage('Authentication failed: ' + error);
+    errorMessage("Authentication failed: " + error);
     return;
   }
 
   if (code && state) {
-    const savedState = sessionStorage.getItem('pkce_state');
-
+    const savedState = sessionStorage.getItem("pkce_state");
 
     const hasMismatch = state !== savedState;
 
     if (hasMismatch) {
-      errorMessage('Security error: State mismatch');
+      errorMessage("Security error: State mismatch");
       return;
     }
 
@@ -243,82 +128,42 @@ async function handleCognitoCallback() {
       const idToken = tokens.id_token;
       const payload = parseJwt(idToken);
       if (!payload) {
-        errorMessage('Invalid token received');
+        errorMessage("Invalid token received");
         return;
       }
 
-      const groups = payload['cognito:groups'] || [];
+      const groups = payload["cognito:groups"] || [];
 
       // Store token in localStorage for use in the redirected page
-      localStorage.setItem('token', idToken);
+      localStorage.setItem(USER_TOKEN_STORAGE_KEY, idToken);
 
       // Redirect based on role
       // Decide which page is the home page by the group
-      if (groups.includes('admin')) {
-        window.location.href = '/pages/manager.html'; // Redirect to agent home page
-      }
-      else if (groups.includes('agent')) {
-        window.location.href = '/pages/agent.html'; // Redirect to admin home page
-      }
-      else {
-        $('#welcome-message').find('span').text(`Welcome ${payload.email}!, To obtain appropriate permissions to use the system, please contact the administrator.`);
-        $('#welcome-loading').hide();
+      if (groups.includes("admin")) {
+        window.location.href = "/pages/manager.html"; // Redirect to agent home page
+      } else if (groups.includes("agent")) {
+        window.location.href = "/pages/agent.html"; // Redirect to admin home page
+      } else {
+        $("#welcome-message")
+          .find("span")
+          .text(
+            `Welcome ${payload.email}!, To obtain appropriate permissions to use the system, please contact the administrator.`
+          );
+        $("#welcome-loading").hide();
       }
     } catch (error) {
-      console.error('Error during token exchange:', error);
-      errorMessage('Failed to complete authentication. Please try again.');
-    }
-  }
-  else {
-    $('#welcome-loading').hide();
-  }
-}
-
-// Handle OAuth callback
-async function handleCallback() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const code = urlParams.get('code');
-  const state = urlParams.get('state');
-  const error = urlParams.get('error');
-
-  if (error) {
-    console.error('OAuth error:', error);
-    showError('Authentication failed: ' + error);
-    return;
-  }
-
-  if (code && state) {
-    const savedState = sessionStorage.getItem('pkce_state');
-
-    if (state !== savedState) {
-      console.error('State mismatch');
-      showError('Security error: State mismatch');
-      return;
-    }
-
-    try {
-      const tokens = await exchangeCodeForTokens(code);
-
-      // Clean up URL
-      window.history.replaceState({}, document.title, window.location.pathname);
-
-      // Redirect based on role
-      redirectToHomePage(tokens.id_token);
-    } catch (error) {
-      console.error('Error during token exchange:', error);
-      showError('Failed to complete authentication. Please try again.');
+      console.error("Error during token exchange:", error);
+      errorMessage("Failed to complete authentication. Please try again.");
     }
   } else {
-    // No code in URL, initiate sign-in
-    await signIn();
+    $("#welcome-loading").hide();
   }
 }
-
 
 function getUserTokenData() {
   const idToken = localStorage.getItem(USER_TOKEN_STORAGE_KEY);
   if (idToken) {
-    const payload = JSON.parse(atob(idToken.split('.')[1]));
+    const payload = parseJwt(idToken);
     return payload;
   }
   return null;
@@ -326,45 +171,31 @@ function getUserTokenData() {
 
 function getUserEmail() {
   const user = getUserTokenData();
-  if (user)
-    return user.email;
-}
-
-function getUserGroup() {
-  const user = getUserTokenData();
-  //if (user)
-  //  return user.cognito: groups
-
-}
-
-let isLoggedIn = false;
-
-function toggleUserState() {
-  isLoggedIn = !isLoggedIn;
-  updateNavbar();
+  if (user) return user.email;
 }
 
 function updateNavbar() {
-  const userDropdown = document.getElementById('userProfileDropdown');
+  const userDropdown = document.getElementById("userProfileDropdown");
 
-  const userImage = $('.user-profile-img');
-  const userName = $('.user-name');
+  const userImage = $(".user-profile-img");
+  const userName = $(".user-name");
 
   const user = getUserTokenData();
-  if (!user) {
+  const isLoggedIn = user != null;
+  if (!isLoggedIn) {
     signOut();
     return;
   }
-  const groups = user['cognito:groups'] || [];
-  const group = groups.length > 0 ? ` (${groups[0]}) ` : '';
-  isLoggedIn = user != null;
-  if (isLoggedIn) {
-    userName.text(`${user.email}${group}`);
-    userImage.attr('src', `https://ui-avatars.com/api/?name=${user.email}&background=0d6efd&color=fff`)
-    userDropdown.style.display = 'block';
-  } else {
-    userDropdown.style.display = 'none';
-  }
+  const groups = user["cognito:groups"] || [];
+  const group = groups.length > 0 ? ` (${groups[0]}) ` : "";
+  
+  userName.text(`${user.email}${group}`);
+  userImage.attr(
+    "src",
+    `https://ui-avatars.com/api/?name=${user.email}&background=0d6efd&color=fff`
+  );
+  userDropdown.style.display = "block";
+  
 }
 
 // helper functions
@@ -372,21 +203,22 @@ function updateNavbar() {
 // Base64 URL encode
 function base64UrlEncode(buffer) {
   const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
-  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
 
 // Generate code challenge for PKCE
 async function generateCodeChallenge(verifier) {
   const encoder = new TextEncoder();
   const data = encoder.encode(verifier);
-  const hash = await crypto.subtle.digest('SHA-256', data);
+  const hash = await crypto.subtle.digest("SHA-256", data);
   return base64UrlEncode(hash);
 }
 
 // Generate random string for PKCE
 function generateRandomString(length) {
-  const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-  let result = '';
+  const charset =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
+  let result = "";
   const values = new Uint8Array(length);
   crypto.getRandomValues(values);
   for (let i = 0; i < length; i++) {
@@ -398,22 +230,10 @@ function generateRandomString(length) {
 // Parse JWT token
 function parseJwt(token) {
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    const payload = JSON.parse(atob(token.split(".")[1]));
     return payload;
   } catch (e) {
-    console.error('Error parsing JWT:', e);
+    console.error("Error parsing JWT:", e);
     return null;
   }
 }
-
-// Show error
-function showError(message) {
-  document.getElementById('loadingDiv').innerHTML = `
-                  <div class="error">
-                      <h2>Authentication Error</h2>
-                      <p>${message}</p>
-                      <button onclick="window.location.href='${config.redirectUri}'">Try Again</button>
-                  </div>
-              `;
-}
-

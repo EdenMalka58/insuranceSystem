@@ -35,7 +35,7 @@ function createImpactLevelRadio(impactLevel, area, imageArea, imageCircle) {
   });
   mediumItemRadio.prop("checked", impactLevel == SEVERITY_MEDIUM);
 
-  var mediumItemRadio = $('<input type="radio"/>')
+  var extensiveItemRadio = $('<input type="radio"/>')
     .addClass("btn-check")
     .attr("name", "radio_" + area.id)
     .attr("id", "radio_" + area.id + "_" + SEVERITY_EXTENSIVE)
@@ -48,7 +48,7 @@ function createImpactLevelRadio(impactLevel, area, imageArea, imageCircle) {
   extensiveItemLabel.on("click", function () {
     onItemClicked(SEVERITY_EXTENSIVE);
   });
-  mediumItemRadio.prop("checked", impactLevel == SEVERITY_EXTENSIVE);
+  extensiveItemRadio.prop("checked", impactLevel == SEVERITY_EXTENSIVE);
 
   var deleteItemRadio = $('<input type="radio"/>')
     .addClass("btn-check")
