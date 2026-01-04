@@ -724,6 +724,45 @@ aws apigateway create-model \
     }
   }'
 
+echo "Resend Claim token notification"
+aws apigateway create-model \
+  --rest-api-id "$API_ID" \
+  --name ResendTokenNotificationRequest \
+  --content-type application/json \
+  --description "Request schema for resending claim notification to driver" \
+  --schema '{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "ResendTokenNotificationRequest",
+    "type": "object",
+    "required": [
+      "policyNumber",
+      "claimNumber"
+    ],
+    "properties": {
+      "policyNumber": { "type": "string" },
+      "claimNumber": { "type": "string" }
+    }
+  }'
+
+aws apigateway create-model \
+  --rest-api-id "$API_ID" \
+  --name ResendTokenNotificationResponse \
+  --content-type application/json \
+  --description "Success response for resending claim notification to driver" \
+  --schema '{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "ResendTokenNotificationResponse",
+    "type": "object",
+    "properties": {
+      "message": { "type": "string" },
+      "claimNumber": { "type": "string" },
+      "policyNumber": { "type": "string" },
+      "emailSent": { "type": "boolean" }
+    }
+  }'
+
+  
+
 
 nano addModels.sh
 CTRL+X

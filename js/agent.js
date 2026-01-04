@@ -357,10 +357,8 @@ async function confirmClaimApprove(isApproved) {
     isApproved: isApproved,
   };
 
-  await apiCallAsync(
-    "PUT",
-    "claims",
-    claimData,
+  const url = `claims/${encodeURIComponent(claimNumber)}`;
+  await apiCallAsync("PUT", url, claimData,
     function (data) {
       showAlert(
         isApproved

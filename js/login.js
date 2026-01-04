@@ -177,8 +177,11 @@ function getUserEmail() {
 function updateNavbar() {
   const userDropdown = document.getElementById("userProfileDropdown");
 
+  const dashboardItem = $(".dashboard-item");
+  const policiesItem = $(".policies-item");
   const userImage = $(".user-profile-img");
   const userName = $(".user-name");
+
 
   const user = getUserTokenData();
   const isLoggedIn = user != null;
@@ -188,6 +191,14 @@ function updateNavbar() {
   }
   const groups = user["cognito:groups"] || [];
   const group = groups.length > 0 ? ` (${groups[0]}) ` : "";
+  if (groups[0] == 'admin') {
+    $(".dashboard-item").show()
+    $(".policies-item").show()
+  }
+  else {
+    $(".dashboard-item").hide()
+    $(".policies-item").hide()
+  }
   
   userName.text(`${user.email}${group}`);
   userImage.attr(

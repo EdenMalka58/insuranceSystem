@@ -74,7 +74,7 @@
     ----------------------------------------------
     API_ID=os9bz8dj84
     echo "Set lambdas functions permission"
-    for FUNC in addClaim addPolicy deletePolicy getPolicy getPolicies updateClaimStatus updatePolicy getAdminDashboard getAdminDashboardDrilldown getAdminStatistics getTokenData addDamageAreas importInsuranceData
+    for FUNC in addClaim addPolicy deletePolicy getPolicy getPolicies updateClaimStatus updatePolicy getAdminDashboard getAdminDashboardDrilldown getAdminStatistics getTokenData addDamageAreas importInsuranceData resendTokenNotification
     do
     aws lambda add-permission \
         --function-name $FUNC \

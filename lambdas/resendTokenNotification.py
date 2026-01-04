@@ -49,9 +49,6 @@ def get_or_create_email_topic(email):
 
     return topic_arn
 
-def delete_topic(topic_arn):
-    sns.delete_topic(TopicArn=topic_arn)
-
 def send_claim_notification(claim_number, policy_number, landing_url, insured_name, insured_email, plate, vehicle):
     """Send claim notification via SNS"""
 
@@ -112,18 +109,19 @@ def handler(event, context):
 
         required_fields = [
             "policyNumber",
-            "claimNumber",
-            "claimDate",
-            "description"
+            "claimNumber"
         ]
 
         missing = [f for f in required_fields if f not in body]
         if missing:
             return error(400, f"Missing fields: {missing}")
+        
+        claim_number = body.get("claimNumber")
+        policy_number = body.get("policyNumber")        
 
         # Verify policy exists
         policy_key = {
-            "PK": f"POLICY#{body['policyNumber']}",
+            "PK": f"POLICY#{policy_number}",
             "SK": "METADATA"
         }
         
@@ -133,35 +131,15 @@ def handler(event, context):
                 return error(404, "Policy not found")
         except Exception as e:
             return error(500, f"Error verifying policy: {str(e)}")
-
-        claim_number = body.get("claimNumber")
-        policy_number = body.get("policyNumber")
-
-        claim_item = {
+                
+        claim_key = {
             "PK": f"POLICY#{policy_number}",
-            "SK": f"CLAIM#{claim_number}",
-            "entityType": "POLICY_CLAIM",
-            "claimNumber": claim_number,
-            "policyNumber": policy_number,
-            "claimDate": body["claimDate"],
-            "description": body["description"],
-            "status": "opened",  # "opened", "approved", "rejected"
-            "approvedAction": "initially", # "initially", "waiting",  "automatically", "manually"
-            "assessmentValue": body.get("assessmentValue", 0), # Calculated by the system
-            "approvedValue": body.get("approvedValue", 0), # Approved by the insurance company
-            "damageAreas": body.get("damageAreas", []),  # Initial damage areas if provided
-            "createdAt": datetime.utcnow().isoformat(),
-            "updatedAt": datetime.utcnow().isoformat(),
-             # GSI2_PolicyClaims attributes
-            "GSI2PK": policy_number,       # Partition Key for GSI
-            "GSI2SK": f"CLAIM#{claim_number}"     # Sort Key for GSI
+            "SK": f"CLAIM#{claim_number}"
         }
 
-        # Prevent duplicate claims
-        table.put_item(
-            Item=claim_item,
-            ConditionExpression="attribute_not_exists(PK) AND attribute_not_exists(SK)"
-        )
+        claim_resp = table.get_item(Key=claim_key)
+        if "Item" not in claim_resp:
+            return error(404, "Claim not found")        
 
         # Create token record to store information for driver's addDamages process  
         token = str(uuid4())
@@ -202,27 +180,21 @@ def handler(event, context):
                 insured_name=insured_name,
                 insured_email=insured_email,
                 plate=vehicle_plate,
-                vehicle=f"{vehicle_model} {vehicle_year}"
+                vehicle=f"{vehicle_model} {vehicle_year}"                
             )
         
         if not notification_sent:
             print(f"Failed to send email: {notification_result}")
-        #else:
-        #    delete_topic(topic_arn)
 
         return ok({
-            "message": "Claim created successfully",
+            "message": "Notification sent successfully",
             "claimNumber": claim_number,
             "policyNumber": policy_number,
             "emailSent": notification_sent,
         })
 
-    except ClientError as e:
-        if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
-            return error(409, "Claim already exists")
-        return error(500, 'Internal sever error')
     except Exception as e:
         return error(500, 'Internal sever error')   
     
     # request
-    # {"body": "{\"policyNumber\":\"POL987654\",\"claimNumber\":\"888777667\",\"claimDate\":\"2025-12-19\",\"description\":\"Test Claim 2\"}"}
+    # {"body": "{\"policyNumber\":\"POL987654\",\"claimNumber\":\"888777667\"}"}

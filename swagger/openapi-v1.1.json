@@ -1,0 +1,1682 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "InsuranceSystemAPI",
+    "version": "version-1.0"
+  },
+  "servers": [
+    {
+      "url": "https://virtserver.swaggerhub.com/school-fda/InsuranceSystemAPI/Vervion-1.0",
+      "description": "SwaggerHub API Auto Mocking"
+    },
+    {
+      "url": "https://azy4fomrz8.execute-api.us-east-1.amazonaws.com/{basePath}",
+      "variables": {
+        "basePath": {
+          "default": "prod"
+        }
+      }
+    }
+  ],
+  "tags": [
+    {
+      "name": "Policies",
+      "description": "Policy management endpoints"
+    },
+    {
+      "name": "Claims",
+      "description": "Claim lifecycle endpoints"
+    },
+    {
+      "name": "Damages",
+      "description": "Damage assessment endpoints"
+    },
+    {
+      "name": "Dashboard",
+      "description": "Admin dashboard endpoints"
+    },
+    {
+      "name": "Statistics",
+      "description": "Analytics and statistics endpoints"
+    }
+  ],
+  "paths": {
+    "/dashboard/drilldown": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Get dashboard chart records",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "value",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAdminDashboardDrilldownResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "InsuranceSystemCognitoAuthorizer": []
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "uri": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:044017822232:function:getAdminDashboardDrilldown/invocations",
+          "httpMethod": "POST",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "timeoutInMillis": 29000,
+          "responseTransferMode": "BUFFERED",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        }
+      }
+    },
+    "/damages/{tokenId}": {
+      "get": {
+        "tags": [
+          "Damages"
+        ],
+        "summary": "Get claim token information",
+        "parameters": [
+          {
+            "name": "tokenId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetTokenDataRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAdminStatisticsResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "uri": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:044017822232:function:getTokenData/invocations",
+          "httpMethod": "POST",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "timeoutInMillis": 29000,
+          "responseTransferMode": "BUFFERED",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        }
+      },
+      "post": {
+        "tags": [
+          "Damages"
+        ],
+        "summary": "Add claim damage areas",
+        "parameters": [
+          {
+            "name": "tokenId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddClaimDamagesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddClaimDamagesResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "uri": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:044017822232:function:addDamageAreas/invocations",
+          "httpMethod": "POST",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "timeoutInMillis": 29000,
+          "responseTransferMode": "BUFFERED",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        }
+      }
+    },
+    "/claims/{claimNumber}" : {
+      "put" : {
+        "tags": [
+          "Claims"
+        ],
+        "summary": "Update claim status",
+        "parameters" : [ {
+          "name" : "claimNumber",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateClaimStatusRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UpdateClaimStatusResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "InsuranceSystemCognitoAuthorizer" : [ ]
+        } ],
+        "x-amazon-apigateway-integration" : {
+          "uri" : "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:044017822232:function:updateClaimStatus/invocations",
+          "httpMethod" : "POST",
+          "responses" : {
+            "default" : {
+              "statusCode" : "200"
+            }
+          },
+          "passthroughBehavior" : "when_no_match",
+          "timeoutInMillis" : 29000,
+          "responseTransferMode" : "BUFFERED",
+          "contentHandling" : "CONVERT_TO_TEXT",
+          "type" : "aws_proxy"
+        }
+      }
+    },
+    "/claims/{claimNumber}/resend" : {
+      "post" : {
+        "tags": [
+          "Claims"
+        ],
+        "summary": "Resend claim token notification",
+        "parameters" : [ {
+          "name" : "claimNumber",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ResendTokenNotificationRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResendTokenNotificationResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "InsuranceSystemCognitoAuthorizer" : [ ]
+        } ],
+        "x-amazon-apigateway-integration" : {
+          "uri" : "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:044017822232:function:resendTokenNotification/invocations",
+          "httpMethod" : "POST",
+          "responses" : {
+            "default" : {
+              "statusCode" : "200"
+            }
+          },
+          "passthroughBehavior" : "when_no_match",
+          "timeoutInMillis" : 29000,
+          "responseTransferMode" : "BUFFERED",
+          "contentHandling" : "CONVERT_TO_TEXT",
+          "type" : "aws_proxy"
+        }
+      }
+    },    
+    "/claims": {
+      "post": {
+        "tags": [
+          "Claims"
+        ],
+        "summary": "Create new claim",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddClaimRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddClaimResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "InsuranceSystemCognitoAuthorizer": []
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "uri": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:044017822232:function:addClaim/invocations",
+          "httpMethod": "POST",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "timeoutInMillis": 29000,
+          "responseTransferMode": "BUFFERED",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        }
+      }
+    },
+    "/dashboard": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Get dashboard charts information",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAdminDashboardResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "InsuranceSystemCognitoAuthorizer": []
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "uri": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:044017822232:function:getAdminDashboard/invocations",
+          "httpMethod": "POST",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "timeoutInMillis": 29000,
+          "responseTransferMode": "BUFFERED",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        }
+      }
+    },
+    "/policies/{policyNumber}": {
+      "get": {
+        "tags": [
+          "Policies"
+        ],
+        "summary": "Get policy record",
+        "parameters": [
+          {
+            "name": "policyNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPolicyResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "InsuranceSystemCognitoAuthorizer": []
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "uri": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:044017822232:function:getPolicy/invocations",
+          "httpMethod": "POST",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "timeoutInMillis": 29000,
+          "responseTransferMode": "BUFFERED",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        }
+      },
+      "put": {
+        "tags": [
+          "Policies"
+        ],
+        "summary": "Update policy record",
+        "parameters": [
+          {
+            "name": "policyNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePolicyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdatePolicyResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "InsuranceSystemCognitoAuthorizer": []
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "uri": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:044017822232:function:updatePolicy/invocations",
+          "httpMethod": "POST",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "timeoutInMillis": 29000,
+          "responseTransferMode": "BUFFERED",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        }
+      },
+      "delete": {
+        "tags": [
+          "Policies"
+        ],
+        "summary": "Delete policy record",
+        "parameters": [
+          {
+            "name": "policyNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletePolicyResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "InsuranceSystemCognitoAuthorizer": []
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "uri": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:044017822232:function:deletePolicy/invocations",
+          "httpMethod": "POST",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "timeoutInMillis": 29000,
+          "responseTransferMode": "BUFFERED",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        }
+      }
+    },
+    "/policies": {
+      "get": {
+        "tags": [
+          "Policies"
+        ],
+        "summary": "Get all policies",
+        "parameters": [
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPoliciesResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "InsuranceSystemCognitoAuthorizer": []
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "uri": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:044017822232:function:getPolicies/invocations",
+          "httpMethod": "POST",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "timeoutInMillis": 29000,
+          "responseTransferMode": "BUFFERED",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        }
+      },
+      "post": {
+        "tags": [
+          "Policies"
+        ],
+        "summary": "Create new policy record",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddPolicyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddPolicyResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "InsuranceSystemCognitoAuthorizer": []
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "uri": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:044017822232:function:addPolicy/invocations",
+          "httpMethod": "POST",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "timeoutInMillis": 29000,
+          "responseTransferMode": "BUFFERED",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        }
+      }
+    },
+    "/statistics": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "Get statistics charts information",
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAdminStatisticsResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "InsuranceSystemCognitoAuthorizer": []
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "uri": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:044017822232:function:getAdminStatistics/invocations",
+          "httpMethod": "POST",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "timeoutInMillis": 29000,
+          "responseTransferMode": "BUFFERED",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ResendTokenNotificationRequest" : {
+        "title" : "ResendTokenNotificationRequest",
+        "required" : [ "claimNumber", "policyNumber" ],
+        "type" : "object",
+        "properties" : {
+          "policyNumber" : {
+            "type" : "string"
+          },
+          "claimNumber" : {
+            "type" : "string"
+          }
+        }
+      },      
+      "ResendTokenNotificationResponse" : {
+        "title" : "ResendTokenNotificationResponse",
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          },
+          "claimNumber" : {
+            "type" : "string"
+          },
+          "policyNumber" : {
+            "type" : "string"
+          },
+          "emailSent" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "UpdateClaimStatusResponse": {
+        "title": "UpdateClaimStatusResponse",
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "policyNumber": {
+            "type": "string"
+          },
+          "claimNumber": {
+            "type": "string"
+          },
+          "approvedValue": {
+            "type": "number"
+          },
+          "approvedAction": {
+            "type": "string"
+          }
+        }
+      },
+      "DeletePolicyResponse": {
+        "title": "DeletePolicyResponse",
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdatePolicyResponse": {
+        "title": "UpdatePolicyResponse",
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "AddClaimResponse": {
+        "title": "AddClaimResponse",
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "claimNumber": {
+            "type": "string"
+          },
+          "policyNumber": {
+            "type": "string"
+          },
+          "emailSent": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UpdatePolicyRequest": {
+        "title": "UpdatePolicyRequest",
+        "type": "object",
+        "properties": {
+          "insuredValue": {
+            "type": "number"
+          },
+          "deductibleValue": {
+            "type": "number"
+          },
+          "insured": {
+            "$ref": "#/components/schemas/UpdatePolicyRequest_insured"
+          },
+          "vehicle": {
+            "$ref": "#/components/schemas/UpdatePolicyRequest_vehicle"
+          },
+          "validity": {
+            "$ref": "#/components/schemas/UpdatePolicyRequest_validity"
+          }
+        }
+      },
+      "GetAdminStatisticsResponseClaimsByStatusDataDatasetsItem": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "AddClaimDamagesRequest": {
+        "title": "AddClaimDamagesRequest",
+        "required": [
+          "damageAreas"
+        ],
+        "type": "object",
+        "properties": {
+          "damageAreas": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AddClaimDamagesRequest_damageAreas"
+            }
+          }
+        }
+      },
+      "GetPolicyResponse": {
+        "title": "GetPolicyResponse",
+        "type": "object",
+        "properties": {
+          "policy": {
+            "$ref": "#/components/schemas/GetPolicyResponse_policy"
+          },
+          "claimsCount": {
+            "type": "integer"
+          },
+          "claims": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetPolicyResponse_claims"
+            }
+          }
+        }
+      },
+      "GetAdminDashboardResponse": {
+        "title": "GetAdminDashboardResponse",
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer"
+          },
+          "counters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAdminDashboardResponse_counters"
+            }
+          },
+          "claimsOverview": {
+            "$ref": "#/components/schemas/GetAdminDashboardResponse_claimsOverview"
+          },
+          "activity": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAdminDashboardResponse_activity"
+            }
+          }
+        }
+      },
+      "Empty": {
+        "title": "Empty Schema",
+        "type": "object"
+      },
+      "GetTokenDataRequest": {
+        "title": "GetTokenDataRequest",
+        "type": "object",
+        "properties": {
+          "tokenId": {
+            "type": "string"
+          }
+        }
+      },
+      "AddPolicyResponse": {
+        "title": "AddPolicyResponse",
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "policyNumber": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateClaimStatusRequest": {
+        "title": "UpdateClaimStatusRequest",
+        "required": [
+          "claimNumber",
+          "isApproved",
+          "policyNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "policyNumber": {
+            "type": "string"
+          },
+          "claimNumber": {
+            "type": "string"
+          },
+          "isApproved": {
+            "type": "boolean"
+          }
+        }
+      },
+      "GetAdminDashboardDrilldownResponse": {
+        "title": "GetAdminDashboardDrilldownResponse",
+        "type": "array",
+        "items": {
+          "oneOf": [
+            {
+              "title": "Policy",
+              "type": "object",
+              "properties": {
+                "PK": {
+                  "type": "string"
+                },
+                "SK": {
+                  "type": "string"
+                },
+                "entityType": {
+                  "type": "string",
+                  "enum": [
+                    "POLICY"
+                  ]
+                },
+                "policyNumber": {
+                  "type": "string"
+                },
+                "insured": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "phone": {
+                      "type": "string"
+                    },
+                    "idNumber": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "vehicle": {
+                  "type": "object",
+                  "properties": {
+                    "model": {
+                      "type": "string"
+                    },
+                    "year": {
+                      "type": "integer"
+                    },
+                    "plateNumber": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "validity": {
+                  "type": "object",
+                  "properties": {
+                    "start": {
+                      "type": "string"
+                    },
+                    "end": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "insuredValue": {
+                  "type": "number"
+                },
+                "deductibleValue": {
+                  "type": "number"
+                },
+                "createdAt": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "title": "Claim",
+              "type": "object",
+              "properties": {
+                "PK": {
+                  "type": "string"
+                },
+                "SK": {
+                  "type": "string"
+                },
+                "entityType": {
+                  "type": "string",
+                  "enum": [
+                    "POLICY_CLAIM"
+                  ]
+                },
+                "claimNumber": {
+                  "type": "string"
+                },
+                "policyNumber": {
+                  "type": "string"
+                },
+                "claimDate": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "opened",
+                    "approved",
+                    "rejected"
+                  ]
+                },
+                "approvedAction": {
+                  "type": "string"
+                },
+                "assessmentValue": {
+                  "type": "number"
+                },
+                "approvedValue": {
+                  "type": "number"
+                },
+                "damageAreas": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "area": {
+                        "type": "string"
+                      },
+                      "severity": {
+                        "type": "string"
+                      },
+                      "estimatedCost": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "GetAdminStatisticsResponseClaimsByStatus": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/GetAdminStatisticsResponseClaimsByStatus_data"
+          },
+          "options": {
+            "type": "object"
+          },
+          "drilldown": {
+            "$ref": "#/components/schemas/GetAdminStatisticsResponseClaimsByStatus_drilldown"
+          }
+        }
+      },
+      "AddClaimRequest": {
+        "title": "AddClaimRequest",
+        "required": [
+          "claimDate",
+          "claimNumber",
+          "description",
+          "policyNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "policyNumber": {
+            "type": "string"
+          },
+          "claimNumber": {
+            "type": "string"
+          },
+          "claimDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "description": {
+            "type": "string"
+          },
+          "assessmentValue": {
+            "type": "number"
+          },
+          "approvedValue": {
+            "type": "number"
+          },
+          "damageAreas": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "GetAdminStatisticsResponse": {
+        "title": "GetAdminStatisticsResponse",
+        "type": "object",
+        "properties": {
+          "claimsByStatus": {
+            "$ref": "#/components/schemas/GetAdminStatisticsResponseClaimsByStatus"
+          },
+          "claimsByApprovedAction": {
+            "$ref": "#/components/schemas/GetAdminStatisticsResponseClaimsByStatus"
+          },
+          "claimsOverTime": {
+            "$ref": "#/components/schemas/GetAdminStatisticsResponseClaimsByStatus"
+          },
+          "approvedValueByMonth": {
+            "$ref": "#/components/schemas/GetAdminStatisticsResponseClaimsByStatus"
+          },
+          "policiesOverTime": {
+            "$ref": "#/components/schemas/GetAdminStatisticsResponseClaimsByStatus"
+          },
+          "claimsByVehicleYear": {
+            "$ref": "#/components/schemas/GetAdminStatisticsResponseClaimsByStatus"
+          },
+          "claimsByVehicleValue": {
+            "$ref": "#/components/schemas/GetAdminStatisticsResponseClaimsByStatus"
+          },
+          "approvalRateByDeductible": {
+            "$ref": "#/components/schemas/GetAdminStatisticsResponseClaimsByStatus"
+          },
+          "avgClaimCostByVehicleValue": {
+            "$ref": "#/components/schemas/GetAdminStatisticsResponseClaimsByStatus"
+          },
+          "deductibleVsOutcome": {
+            "$ref": "#/components/schemas/GetAdminStatisticsResponseClaimsByStatus"
+          }
+        }
+      },
+      "AddClaimDamagesResponse": {
+        "title": "AddClaimDamagesResponse",
+        "type": "object",
+        "properties": {
+          "claimNumber": {
+            "type": "string"
+          },
+          "assessmentValue": {
+            "type": "number"
+          },
+          "approvedValue": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "approved",
+              "rejected"
+            ]
+          },
+          "damageAreas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AddClaimDamagesResponse_damageAreas"
+            }
+          }
+        }
+      },
+      "AddPolicyRequest": {
+        "title": "AddPolicyRequest",
+        "required": [
+          "deductibleValue",
+          "insured",
+          "insuredValue",
+          "policyNumber",
+          "validity",
+          "vehicle"
+        ],
+        "type": "object",
+        "properties": {
+          "policyNumber": {
+            "type": "string"
+          },
+          "insured": {
+            "$ref": "#/components/schemas/AddPolicyRequest_insured"
+          },
+          "vehicle": {
+            "$ref": "#/components/schemas/AddPolicyRequest_vehicle"
+          },
+          "validity": {
+            "$ref": "#/components/schemas/AddPolicyRequest_validity"
+          },
+          "insuredValue": {
+            "type": "number"
+          },
+          "deductibleValue": {
+            "type": "number"
+          }
+        }
+      },
+      "GetPoliciesResponse": {
+        "title": "GetPoliciesResponse",
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetPolicyResponse_policy"
+            }
+          },
+          "page": {
+            "type": "integer"
+          },
+          "pageSize": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          },
+          "hasNext": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UpdatePolicyRequest_insured": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdatePolicyRequest_vehicle": {
+        "type": "object",
+        "properties": {
+          "make": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "year": {
+            "type": "integer"
+          },
+          "licensePlate": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdatePolicyRequest_validity": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          }
+        }
+      },
+      "AddClaimDamagesRequest_damageAreas": {
+        "required": [
+          "area",
+          "severity"
+        ],
+        "type": "object",
+        "properties": {
+          "area": {
+            "type": "string",
+            "enum": [
+              "front",
+              "frontLeft",
+              "frontRight",
+              "rear",
+              "rearRight",
+              "rearLeft",
+              "rightSide",
+              "rightFrontSide",
+              "rightRearSide",
+              "leftSide",
+              "leftFrontSide",
+              "leftRearSide"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "slight",
+              "medium",
+              "extensive"
+            ]
+          }
+        }
+      },
+      "GetPolicyResponse_policy_insured": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "idNumber": {
+            "type": "string"
+          }
+        }
+      },
+      "GetPolicyResponse_policy_vehicle": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "string"
+          },
+          "year": {
+            "type": "integer"
+          },
+          "plateNumber": {
+            "type": "string"
+          }
+        }
+      },
+      "GetPolicyResponse_policy_validity": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          }
+        }
+      },
+      "GetPolicyResponse_policy": {
+        "type": "object",
+        "properties": {
+          "policyNumber": {
+            "type": "string"
+          },
+          "insured": {
+            "$ref": "#/components/schemas/GetPolicyResponse_policy_insured"
+          },
+          "vehicle": {
+            "$ref": "#/components/schemas/GetPolicyResponse_policy_vehicle"
+          },
+          "validity": {
+            "$ref": "#/components/schemas/GetPolicyResponse_policy_validity"
+          },
+          "insuredValue": {
+            "type": "number"
+          },
+          "deductibleValue": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        }
+      },
+      "GetPolicyResponse_claims": {
+        "type": "object",
+        "properties": {
+          "claimNumber": {
+            "type": "string"
+          },
+          "claimDate": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "approvedAction": {
+            "type": "string"
+          },
+          "assessmentValue": {
+            "type": "number"
+          },
+          "approvedValue": {
+            "type": "number"
+          },
+          "damageAreas": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "GetAdminDashboardResponse_drilldown": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "GetAdminDashboardResponse_counters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "amount": {
+            "type": "integer"
+          },
+          "color": {
+            "type": "string"
+          },
+          "drilldown": {
+            "$ref": "#/components/schemas/GetAdminDashboardResponse_drilldown"
+          }
+        }
+      },
+      "GetAdminDashboardResponse_claimsOverview_datasets": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "borderColor": {
+            "type": "string"
+          },
+          "backgroundColor": {
+            "type": "string"
+          },
+          "drilldownType": {
+            "type": "string"
+          },
+          "fill": {
+            "type": "boolean"
+          }
+        }
+      },
+      "GetAdminDashboardResponse_claimsOverview": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "datasets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAdminDashboardResponse_claimsOverview_datasets"
+            }
+          }
+        }
+      },
+      "GetAdminDashboardResponse_activity": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "color": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "GetAdminStatisticsResponseClaimsByStatus_data": {
+        "type": "object",
+        "properties": {
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "datasets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetAdminStatisticsResponseClaimsByStatusDataDatasetsItem"
+            }
+          }
+        }
+      },
+      "GetAdminStatisticsResponseClaimsByStatus_drilldown": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "key": {
+            "type": "string"
+          },
+          "endpoint": {
+            "type": "string"
+          }
+        }
+      },
+      "AddClaimDamagesResponse_damageAreas": {
+        "type": "object",
+        "properties": {
+          "area": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "estimatedCost": {
+            "type": "number"
+          }
+        }
+      },
+      "AddPolicyRequest_insured": {
+        "required": [
+          "idNumber",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "idNumber": {
+            "type": "string"
+          }
+        }
+      },
+      "AddPolicyRequest_vehicle": {
+        "required": [
+          "model",
+          "plateNumber",
+          "year"
+        ],
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "string"
+          },
+          "year": {
+            "type": "integer"
+          },
+          "plateNumber": {
+            "type": "string"
+          }
+        }
+      },
+      "AddPolicyRequest_validity": {
+        "required": [
+          "end",
+          "start"
+        ],
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date"
+          },
+          "end": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "InsuranceSystemCognitoAuthorizer": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header",
+        "x-amazon-apigateway-authtype": "cognito_user_pools",
+        "x-amazon-apigateway-authorizer": {
+          "providerARNs": [
+            "arn:aws:cognito-idp:us-east-1:044017822232:userpool/us-east-1_z6m8OWbKY"
+          ],
+          "type": "cognito_user_pools"
+        }
+      }
+    }
+  },
+  "x-amazon-apigateway-security-policy": "SecurityPolicy_TLS13_1_3_2025_09",
+  "x-amazon-apigateway-endpoint-access-mode": "BASIC"
+}

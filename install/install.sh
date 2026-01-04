@@ -38,8 +38,8 @@ APP_CLIENT_ID=$(aws cognito-idp create-user-pool-client \
       'ALLOW_REFRESH_TOKEN_AUTH' \
       'ALLOW_USER_SRP_AUTH' \
       'ALLOW_USER_AUTH' \
-  --auth-session-validity 3  \
-  --refresh-token-validity 5  \
+  --auth-session-validity 15  \
+  --refresh-token-validity 60  \
   --access-token-validity 60  \
   --id-token-validity 60  \
   --token-validity-units '{"RefreshToken":"days","AccessToken":"minutes","IdToken":"minutes"}'  \
@@ -135,7 +135,7 @@ aws lambda publish-layer-version \
     --compatible-runtimes python3.14
 
 echo "Add lambdas functions"
-for FUNC in addClaim addPolicy deletePolicy getPolicy getPolicies updateClaimStatus updatePolicy getAdminDashboard getAdminDashboardDrilldown getAdminStatistics getTokenData addDamageAreas importInsuranceData
+for FUNC in addClaim addPolicy deletePolicy getPolicy getPolicies updateClaimStatus updatePolicy getAdminDashboard getAdminDashboardDrilldown getAdminStatistics getTokenData addDamageAreas importInsuranceData resendTokenNotification
 do
   echo "Creating $FUNC ..."
   aws lambda create-function \
@@ -147,7 +147,7 @@ do
 done
 
 echo "Set lambdas functions layers"
-for FUNC in addClaim addPolicy deletePolicy getPolicy getPolicies updateClaimStatus updatePolicy getAdminDashboard getAdminDashboardDrilldown getAdminStatistics getTokenData addDamageAreas importInsuranceData
+for FUNC in addClaim addPolicy deletePolicy getPolicy getPolicies updateClaimStatus updatePolicy getAdminDashboard getAdminDashboardDrilldown getAdminStatistics getTokenData addDamageAreas importInsuranceData resendTokenNotification
 do
   echo "Adding layers to $FUNC ..."
   aws lambda update-function-configuration \

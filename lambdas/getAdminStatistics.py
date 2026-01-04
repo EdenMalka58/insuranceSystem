@@ -31,10 +31,6 @@ def handler(event, context):
         "approvedValueByMonth": approved_value_by_month(claims),
         "policiesOverTime": policies_over_time(policies.values()),
         "claimsByVehicleYear": claims_by_vehicle_year(claims, policies),
-        "claimsByVehicleValue": claims_by_vehicle_value(claims, policies),
-        "approvalRateByDeductible": approval_rate_by_deductible(claims, policies),
-        "avgClaimCostByVehicleValue": avg_claim_cost_by_vehicle_value(claims, policies),
-        "deductibleVsOutcome": deductible_vs_outcome(claims, policies)
     }
 
     return ok(200, stats)
@@ -112,94 +108,3 @@ def claims_by_vehicle_year(claims, policies):
         if p:
             c[str(p["vehicle"]["year"])] += 1
     return chart("bar", list(c.keys()), list(c.values()), "claimsByVehicleYear", "Claims by Vehicle Year")
-
-
-def claims_by_vehicle_value(claims, policies):
-    ranges = [("0-50K",0,50000),("50K-100K",50000,100000),
-              ("100K-200K",100000,200000),("200K+",200000,10**9)]
-    c = defaultdict(int)
-    for cl in claims:
-        p = policies.get(cl["policyNumber"])
-        if p:
-            c[bucket(p["insuredValue"], ranges)] += 1
-    return chart("bar", list(c.keys()), list(c.values()), "claimsByVehicleValue", "Claims by Vehicle Insured Value")
-
-
-def approval_rate_by_deductible(claims, policies):
-    ranges = [("0-1K",0,1000),("1K-3K",1000,3000),
-              ("3K-5K",3000,5000),("5K+",5000,10**9)]
-    total, approved = defaultdict(int), defaultdict(int)
-
-    for cl in claims:
-        p = policies.get(cl["policyNumber"])
-        if p:
-            b = bucket(p["deductibleValue"], ranges)
-            total[b] += 1
-            if cl["status"] == "approved":
-                approved[b] += 1
-
-    labels = list(total.keys())
-    rates = [round((approved[l]/total[l])*100,1) if total[l] else 0 for l in labels]
-
-    return {
-        "title": "Approval Rate by Deductible",
-        "type": "bar",
-        "data": {"labels": labels,
-                 "datasets": [{"label": "Approval %", "data": rates}]},
-        "drilldown": {"enabled": True, "key": "approvalRateByDeductible"}
-    }
-
-
-def avg_claim_cost_by_vehicle_value(claims, policies):
-    ranges = [("0-50K",0,50000),("50K-100K",50000,100000),
-              ("100K-200K",100000,200000),("200K+",200000,10**9)]
-    sums, cnt = defaultdict(int), defaultdict(int)
-
-    for cl in claims:
-        p = policies.get(cl["policyNumber"])
-        if p:
-            b = bucket(p["insuredValue"], ranges)
-            sums[b] += int(cl.get("assessmentValue", 0))
-            cnt[b] += 1
-
-    labels = list(sums.keys())
-    avg = [round(sums[l]/cnt[l],2) if cnt[l] else 0 for l in labels]
-
-    return {
-        "title": "Average Claim Cost by Vehicle Value",
-        "type": "line",
-        "data": {"labels": labels,
-                 "datasets": [{"label": "Avg Claim Cost", "data": avg}]},
-        "drilldown": {"enabled": True, "key": "avgClaimCostByVehicleValue"}
-    }
-
-
-def deductible_vs_outcome(claims, policies):
-    ranges = [("0-1K",0,1000),("1K-3K",1000,3000),
-              ("3K-5K",3000,5000),("5K+",5000,10**9)]
-    app, rej = defaultdict(int), defaultdict(int)
-
-    for cl in claims:
-        p = policies.get(cl["policyNumber"])
-        if p:
-            b = bucket(p["deductibleValue"], ranges)
-            if cl["status"] == "approved":
-                app[b] += 1
-            elif cl["status"] == "rejected":
-                rej[b] += 1
-
-    labels = list(app.keys())
-    return {
-        "title": "Claim Outcome by Deductible",
-        "type": "bar",
-        "data": {
-            "labels": labels,
-            "datasets": [
-                {"label": "Approved", "data": [app[l] for l in labels]},
-                {"label": "Rejected", "data": [rej[l] for l in labels]}
-            ]
-        },
-        "options": {"stacked": True},
-        "drilldown": {"enabled": True, "key": "deductibleVsOutcome"}
-    }
-

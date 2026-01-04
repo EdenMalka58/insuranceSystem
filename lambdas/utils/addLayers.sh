@@ -12,3 +12,5 @@ aws lambda update-function-configuration --function-name getAdminStatisticsDrill
 aws lambda update-function-configuration --function-name getTokenData --layers arn:aws:lambda:us-east-1:044017822232:layer:damage-inspector-response:1 
 aws lambda update-function-configuration --function-name addDamageAreas --layers arn:aws:lambda:us-east-1:044017822232:layer:damage-inspector-response:1 
 aws lambda update-function-configuration --function-name importInsuranceData --layers arn:aws:lambda:us-east-1:044017822232:layer:damage-inspector-response:1 
+aws lambda update-function-configuration --function-name resendTokenNotification --layers arn:aws:lambda:us-east-1:044017822232:layer:damage-inspector-response:1 
+
