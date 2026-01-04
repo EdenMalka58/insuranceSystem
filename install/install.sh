@@ -1,9 +1,8 @@
-VERSION="v01"
+VERSION="v02"
 REGION="us-east-1"
 ACCOUNT_ID="263015886377" #MUST BE REPLACED !!!
 USER_POOL_NAME="InsuranceSystemUserPool-$VERSION"
 APP_CLIENT_NAME="InsuranceSystemSPAClient-$VERSION"
-AUTHORIZER_NAME="InsuranceSystemCognitoAuthorizer-$VERSION"
 BUCKET_NAME="insurance-claim-damage-pages-$VERSION"
 DOMAIN_PREFIX="insurance-claim-damage-$VERSION"
 CALLBACK_URLS="https://insurance-claim-damage-pages-$VERSION.s3.us-east-1.amazonaws.com/index.html"
@@ -11,7 +10,6 @@ LOGOUT_URLS="https://insurance-claim-damage-pages-$VERSION.s3.us-east-1.amazonaw
 ADMIN_EMAIL="edenony@gmail.com"
 AGENT_EMAIL="sahar81@gmail.com"
 PASSWORD="38388112Sm$"
-
 
 echo "Create Cognito User Pool (Email sign-in, required attributes)"
 USER_POOL_ID=$(aws cognito-idp create-user-pool \
@@ -232,9 +230,10 @@ aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy '{
   }]
 }'
 
-echo "-----------------------------------------------"
+
+echo "========================================================="
 echo "Insurance System setup completed successfully."
-echo "-----------------------------------------------"
+echo "========================================================="
 
 
 

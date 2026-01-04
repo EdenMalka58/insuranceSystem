@@ -732,7 +732,7 @@ aws cognito-idp create-user-pool-domain
   Editor : https://editor.swagger.io/
 
 
-  apigateway via shell
+  apigateway via shell - check this 
   --------------------
   #!/bin/bash
 set -e
@@ -763,6 +763,7 @@ sed -i "s/$OLD_ACCOUNT_ID/$NEW_ACCOUNT_ID/g" "$OPENAPI_FILE"
 
 ### ===== STEP 3: Import API Gateway =====
 echo "Importing API Gateway..."
+API_ID=$(aws apigateway import-rest-api --region us-east-1 --body file://$OPENAPI_FILE --query id --output text)
 API_ID=$(aws apigateway import-rest-api \
   --region $REGION \
   --endpoint-configuration types=REGIONAL \
@@ -823,3 +824,70 @@ echo "API ID: $API_ID"
 echo "Invoke URL:"
 echo "https://$API_ID.execute-api.$REGION.amazonaws.com/prod"
 echo "=========================================="
+
+
+API_NAME="InsuranceSystemAPI"
+COGNITO_USER_POOL_NAME="InsuranceSystemUserPool"
+AUTHORIZER_NAME="InsuranceSystemCognitoAuthorizer"               
+OPENAPI_FILE="api-getaway-openapi.json"
+LAMBDA_FUNCTIONS=(
+  addClaim addPolicy deletePolicy getPolicy getPolicies
+  updateClaimStatus updatePolicy
+  getAdminDashboard getAdminDashboardDrilldown
+  getAdminStatistics getTokenData
+  addDamageAreas importInsuranceData resendTokenNotification
+)
+
+
+echo "Import API getaway file"
+
+echo "Replacing Lambda Account ID in OpenAPI file..."
+sed -i "s/ACCOUNT_ID/$ACCOUNT_ID/g" "$OPENAPI_FILE"
+
+echo "Importing API Gateway..."
+API_ID=$(aws apigateway import-rest-api \
+  --region $REGION \
+  --body file://$OPENAPI_FILE \
+  --query id \
+  --output text)
+
+API_ID=$(aws apigateway import-rest-api --region $REGION --body file://$OPENAPI_FILE --query id --output text)
+aws apigateway import-rest-api \
+  --region us-east-1 \
+  --body file://api-getaway-openapi.json \
+  --debug
+
+
+
+echo "Created API Gateway with ID: $API_ID"
+
+echo "Fixing Cognito Authorizer..."
+
+
+AUTHORIZER_ID=$(aws apigateway get-authorizers \
+  --rest-api-id $API_ID \
+  --query "items[?name=='$AUTHORIZER_NAME'].id | [0]" \
+  --output text)
+
+aws apigateway update-authorizer \
+  --rest-api-id $API_ID \
+  --authorizer-id $AUTHORIZER_ID \
+  --patch-operations \
+    op=replace,path=/providerARNs,value="arn:aws:cognito-idp:$REGION:$ACCOUNT_ID:userpool/$USER_POOL_ID"
+
+echo "Authorizer updated successfully"
+
+echo "Granting API Gateway invoke permissions..."
+for FUNC in "${LAMBDA_FUNCTIONS[@]}"; do
+  aws lambda add-permission \
+    --function-name $FUNC \
+    --statement-id apigw-$API_ID-$FUNC \
+    --action lambda:InvokeFunction \
+    --principal apigateway.amazonaws.com \
+    --source-arn arn:aws:execute-api:$REGION:$ACCOUNT_ID:$API_ID/*/*/*
+done
+
+echo "Deploying prod stage..."
+aws apigateway create-deployment \
+  --rest-api-id $API_ID \
+  --stage-name prod
