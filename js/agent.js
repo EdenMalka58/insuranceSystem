@@ -350,6 +350,29 @@ function rejectClaim(btn, policyNumber, claimNumber, assessmentValue) {
   new bootstrap.Modal($("#approveClaimModal")).show();
 }
 
+function resendClaimNotification(btn, policyNumber, claimNumber, insuredName) {
+  currentPolicyToChange = policyNumber;
+  currentClaimToChange = claimNumber;
+  currentClaimToChangeBtn = btn;
+  const approveClaimModalHeader = $("#approveClaimModalHeader").empty();
+  const approveClaimModalText = $("#approveClaimModalText").empty();
+  const approveClaimModalBtn = $("#approveClaimModalBtn").empty();
+  approveClaimModalHeader.html(
+    '<i class="fa-regular fa-paper-plane"></i> Resend claim notification'
+  );
+  approveClaimModalText.html(
+    `Are you sure you want to send claim <strong>${claimNumber}</strong> notification to <strong>${insuredName}}</strong> ?`
+  );
+  approveClaimModalBtn
+    .off("click")
+    .on("click", function () {
+      confirmResendClaimNotification();
+    })
+    .text("Send");
+  new bootstrap.Modal($("#approveClaimModal")).show();
+}
+
+
 async function confirmClaimApprove(isApproved) {
   const claimData = {
     policyNumber: currentPolicyToChange,
@@ -376,3 +399,24 @@ async function confirmClaimApprove(isApproved) {
     currentClaimToChangeBtn
   );
 }
+
+async function confirmResendClaimNotification() {
+  const claimData = {
+    policyNumber: currentPolicyToChange,
+    claimNumber: currentClaimToChange,
+  };
+
+  const url = `claims/${encodeURIComponent(claimNumber)}/resend`;
+  await apiCallAsync("POST", url, claimData,
+    function () {
+      const successMessage = "A link is sent to the insured for reporting vehicle damage.";
+      showAlert(successMessage, "success", "Success");
+      bootstrap.Modal.getInstance($("#approveClaimModal")).hide();
+    },
+    function (error) {
+      showAlert(error.error, "error", "Error resending claim notification");
+    },
+    $("#resend-claim-btn")
+  );
+}
+

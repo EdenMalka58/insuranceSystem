@@ -301,6 +301,12 @@ function getClaimDetailsHTML(claim, isEditMode, policy) {
                         <i class="fa-solid fa-thumbs-down"></i> Reject claim
                       </button>
                     ` : ``}
+                    ${isEditMode && claim.approvedAction === APPROVED_ACTION_INITIALLY ? `
+                      <button class="btn btn-success btn-sm me-2"
+                        onclick='resendClaimNotification($(this),${JSON.stringify(policy.policyNumber)}, ${JSON.stringify(claim.claimNumber)}, ${JSON.stringify(policy.insured.name)})'>
+                        <i class="fa-regular fa-paper-plane"></i> Resend Notification
+                      </button>
+                    ` : ``}
                 </div>
             </div>
                     
