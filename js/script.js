@@ -136,7 +136,15 @@ const SEVERITY_MEDIUM = "medium"; //2
 const SEVERITY_EXTENSIVE = "extensive"; //3
 const SEVERITY_NONE = "empty"; //4
 
-var impactAreasTable = [
+// Configuration for severity levels
+const SEVERITY_LEVELS = [
+  { value: SEVERITY_SLIGHT, label: 'Slight' },
+  { value: SEVERITY_MEDIUM, label: 'Medium' },
+  { value: SEVERITY_EXTENSIVE, label: 'Extensive' },
+  { value: SEVERITY_NONE, label: '<i class="fa fa-times text-danger"></i>', isDelete: true }
+];
+
+var DAMAGE_AREAS = [
   { id: AREA_FRONT, x: "86%", y: "48%", desc: "Front" },
   { id: AREA_FRONT_LEFT, x: "78%", y: "21%", desc: "Front Left" },
   { id: AREA_FRONT_RIGHT, x: "78%", y: "75%", desc: "Front Right" },
@@ -151,7 +159,7 @@ var impactAreasTable = [
   { id: AREA_LEFT_REAR_SIDE, x: "32%", y: "21%", desc: "Left Rear Side" },
 ];
 function getAreaDesc(areaId) {
-  const area = impactAreasTable.find(area => area.id === areaId);
+  const area = DAMAGE_AREAS.find(area => area.id === areaId);
   return area ? area.desc : areaId; 
 }
 
@@ -348,7 +356,7 @@ function getClaimDetailsHTML(claim, isEditMode, policy) {
 
 function markClaimDamagesImage(image, damages) {
   var container = image.parent();
-  $.each(impactAreasTable, function (i, area) {
+  $.each(DAMAGE_AREAS, function (i, area) {
     var isSelected = damages && damages.find(d => d.area == area.id);
     if (isSelected)
       $("<img/>")
