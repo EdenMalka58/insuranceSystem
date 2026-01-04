@@ -2,7 +2,7 @@
   "openapi" : "3.0.1",
   "info" : {
     "title" : "InsuranceSystemAPI",
-    "version" : "2025-12-29T04:15:18Z"
+    "version" : "2026-01-04T06:11:34Z"
   },
   "servers" : [ {
     "url" : "https://azy4fomrz8.execute-api.us-east-1.amazonaws.com/{basePath}",
@@ -50,7 +50,6 @@
           "InsuranceSystemCognitoAuthorizer" : [ ]
         } ],
         "x-amazon-apigateway-integration" : {
-          "type" : "aws_proxy",
           "uri" : "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:263015886377:function:getAdminDashboardDrilldown/invocations",
           "httpMethod" : "POST",
           "responses" : {
@@ -61,7 +60,8 @@
           "passthroughBehavior" : "when_no_match",
           "timeoutInMillis" : 29000,
           "responseTransferMode" : "BUFFERED",
-          "contentHandling" : "CONVERT_TO_TEXT"
+          "contentHandling" : "CONVERT_TO_TEXT",
+          "type" : "aws_proxy"
         }
       },
       "options" : {
@@ -95,7 +95,6 @@
           }
         },
         "x-amazon-apigateway-integration" : {
-          "type" : "mock",
           "responses" : {
             "default" : {
               "statusCode" : "200",
@@ -109,7 +108,8 @@
           "requestTemplates" : {
             "application/json" : "{\"statusCode\": 200}"
           },
-          "passthroughBehavior" : "when_no_match"
+          "passthroughBehavior" : "when_no_match",
+          "type" : "mock"
         }
       }
     },
@@ -146,7 +146,6 @@
           }
         },
         "x-amazon-apigateway-integration" : {
-          "type" : "aws_proxy",
           "uri" : "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:263015886377:function:getTokenData/invocations",
           "httpMethod" : "POST",
           "responses" : {
@@ -157,7 +156,8 @@
           "passthroughBehavior" : "when_no_match",
           "timeoutInMillis" : 29000,
           "responseTransferMode" : "BUFFERED",
-          "contentHandling" : "CONVERT_TO_TEXT"
+          "contentHandling" : "CONVERT_TO_TEXT",
+          "type" : "aws_proxy"
         }
       },
       "post" : {
@@ -192,7 +192,6 @@
           }
         },
         "x-amazon-apigateway-integration" : {
-          "type" : "aws_proxy",
           "uri" : "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:263015886377:function:addDamageAreas/invocations",
           "httpMethod" : "POST",
           "responses" : {
@@ -203,7 +202,8 @@
           "passthroughBehavior" : "when_no_match",
           "timeoutInMillis" : 29000,
           "responseTransferMode" : "BUFFERED",
-          "contentHandling" : "CONVERT_TO_TEXT"
+          "contentHandling" : "CONVERT_TO_TEXT",
+          "type" : "aws_proxy"
         }
       },
       "options" : {
@@ -245,7 +245,6 @@
           }
         },
         "x-amazon-apigateway-integration" : {
-          "type" : "mock",
           "responses" : {
             "default" : {
               "statusCode" : "200",
@@ -259,52 +258,12 @@
           "requestTemplates" : {
             "application/json" : "{\"statusCode\": 200}"
           },
-          "passthroughBehavior" : "when_no_match"
+          "passthroughBehavior" : "when_no_match",
+          "type" : "mock"
         }
       }
     },
     "/claims" : {
-      "put" : {
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/UpdateClaimStatusRequest"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "description" : "200 response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/UpdateClaimStatusResponse"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "InsuranceSystemCognitoAuthorizer" : [ ]
-        } ],
-        "x-amazon-apigateway-integration" : {
-          "type" : "aws_proxy",
-          "uri" : "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:263015886377:function:updateClaimStatus/invocations",
-          "httpMethod" : "POST",
-          "responses" : {
-            "default" : {
-              "statusCode" : "200"
-            }
-          },
-          "passthroughBehavior" : "when_no_match",
-          "timeoutInMillis" : 29000,
-          "responseTransferMode" : "BUFFERED",
-          "contentHandling" : "CONVERT_TO_TEXT"
-        }
-      },
       "post" : {
         "requestBody" : {
           "content" : {
@@ -332,7 +291,6 @@
           "InsuranceSystemCognitoAuthorizer" : [ ]
         } ],
         "x-amazon-apigateway-integration" : {
-          "type" : "aws_proxy",
           "uri" : "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:263015886377:function:addClaim/invocations",
           "httpMethod" : "POST",
           "responses" : {
@@ -343,7 +301,8 @@
           "passthroughBehavior" : "when_no_match",
           "timeoutInMillis" : 29000,
           "responseTransferMode" : "BUFFERED",
-          "contentHandling" : "CONVERT_TO_TEXT"
+          "contentHandling" : "CONVERT_TO_TEXT",
+          "type" : "aws_proxy"
         }
       },
       "options" : {
@@ -377,7 +336,6 @@
           }
         },
         "x-amazon-apigateway-integration" : {
-          "type" : "mock",
           "responses" : {
             "default" : {
               "statusCode" : "200",
@@ -391,7 +349,8 @@
           "requestTemplates" : {
             "application/json" : "{\"statusCode\": 200}"
           },
-          "passthroughBehavior" : "when_no_match"
+          "passthroughBehavior" : "when_no_match",
+          "type" : "mock"
         }
       }
     },
@@ -420,7 +379,6 @@
           "InsuranceSystemCognitoAuthorizer" : [ ]
         } ],
         "x-amazon-apigateway-integration" : {
-          "type" : "aws_proxy",
           "uri" : "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:263015886377:function:getAdminDashboard/invocations",
           "httpMethod" : "POST",
           "responses" : {
@@ -431,7 +389,8 @@
           "passthroughBehavior" : "when_no_match",
           "timeoutInMillis" : 29000,
           "responseTransferMode" : "BUFFERED",
-          "contentHandling" : "CONVERT_TO_TEXT"
+          "contentHandling" : "CONVERT_TO_TEXT",
+          "type" : "aws_proxy"
         }
       },
       "options" : {
@@ -465,7 +424,6 @@
           }
         },
         "x-amazon-apigateway-integration" : {
-          "type" : "mock",
           "responses" : {
             "default" : {
               "statusCode" : "200",
@@ -479,7 +437,8 @@
           "requestTemplates" : {
             "application/json" : "{\"statusCode\": 200}"
           },
-          "passthroughBehavior" : "when_no_match"
+          "passthroughBehavior" : "when_no_match",
+          "type" : "mock"
         }
       }
     },
@@ -516,7 +475,6 @@
           "InsuranceSystemCognitoAuthorizer" : [ ]
         } ],
         "x-amazon-apigateway-integration" : {
-          "type" : "aws_proxy",
           "uri" : "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:263015886377:function:getAdminStatisticsDrilldown/invocations",
           "httpMethod" : "POST",
           "responses" : {
@@ -527,7 +485,8 @@
           "passthroughBehavior" : "when_no_match",
           "timeoutInMillis" : 29000,
           "responseTransferMode" : "BUFFERED",
-          "contentHandling" : "CONVERT_TO_TEXT"
+          "contentHandling" : "CONVERT_TO_TEXT",
+          "type" : "aws_proxy"
         }
       },
       "options" : {
@@ -561,7 +520,6 @@
           }
         },
         "x-amazon-apigateway-integration" : {
-          "type" : "mock",
           "responses" : {
             "default" : {
               "statusCode" : "200",
@@ -575,7 +533,8 @@
           "requestTemplates" : {
             "application/json" : "{\"statusCode\": 200}"
           },
-          "passthroughBehavior" : "when_no_match"
+          "passthroughBehavior" : "when_no_match",
+          "type" : "mock"
         }
       }
     },
@@ -605,7 +564,6 @@
           "InsuranceSystemCognitoAuthorizer" : [ ]
         } ],
         "x-amazon-apigateway-integration" : {
-          "type" : "aws_proxy",
           "uri" : "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:263015886377:function:getPolicy/invocations",
           "httpMethod" : "POST",
           "responses" : {
@@ -616,7 +574,8 @@
           "passthroughBehavior" : "when_no_match",
           "timeoutInMillis" : 29000,
           "responseTransferMode" : "BUFFERED",
-          "contentHandling" : "CONVERT_TO_TEXT"
+          "contentHandling" : "CONVERT_TO_TEXT",
+          "type" : "aws_proxy"
         }
       },
       "put" : {
@@ -654,7 +613,6 @@
           "InsuranceSystemCognitoAuthorizer" : [ ]
         } ],
         "x-amazon-apigateway-integration" : {
-          "type" : "aws_proxy",
           "uri" : "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:263015886377:function:updatePolicy/invocations",
           "httpMethod" : "POST",
           "responses" : {
@@ -665,7 +623,8 @@
           "passthroughBehavior" : "when_no_match",
           "timeoutInMillis" : 29000,
           "responseTransferMode" : "BUFFERED",
-          "contentHandling" : "CONVERT_TO_TEXT"
+          "contentHandling" : "CONVERT_TO_TEXT",
+          "type" : "aws_proxy"
         }
       },
       "delete" : {
@@ -693,7 +652,6 @@
           "InsuranceSystemCognitoAuthorizer" : [ ]
         } ],
         "x-amazon-apigateway-integration" : {
-          "type" : "aws_proxy",
           "uri" : "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:263015886377:function:deletePolicy/invocations",
           "httpMethod" : "POST",
           "responses" : {
@@ -704,7 +662,8 @@
           "passthroughBehavior" : "when_no_match",
           "timeoutInMillis" : 29000,
           "responseTransferMode" : "BUFFERED",
-          "contentHandling" : "CONVERT_TO_TEXT"
+          "contentHandling" : "CONVERT_TO_TEXT",
+          "type" : "aws_proxy"
         }
       },
       "options" : {
@@ -746,7 +705,6 @@
           }
         },
         "x-amazon-apigateway-integration" : {
-          "type" : "mock",
           "responses" : {
             "default" : {
               "statusCode" : "200",
@@ -760,7 +718,8 @@
           "requestTemplates" : {
             "application/json" : "{\"statusCode\": 200}"
           },
-          "passthroughBehavior" : "when_no_match"
+          "passthroughBehavior" : "when_no_match",
+          "type" : "mock"
         }
       }
     },
@@ -801,7 +760,6 @@
           "InsuranceSystemCognitoAuthorizer" : [ ]
         } ],
         "x-amazon-apigateway-integration" : {
-          "type" : "aws_proxy",
           "uri" : "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:263015886377:function:getPolicies/invocations",
           "httpMethod" : "POST",
           "responses" : {
@@ -812,7 +770,8 @@
           "passthroughBehavior" : "when_no_match",
           "timeoutInMillis" : 29000,
           "responseTransferMode" : "BUFFERED",
-          "contentHandling" : "CONVERT_TO_TEXT"
+          "contentHandling" : "CONVERT_TO_TEXT",
+          "type" : "aws_proxy"
         }
       },
       "post" : {
@@ -842,7 +801,6 @@
           "InsuranceSystemCognitoAuthorizer" : [ ]
         } ],
         "x-amazon-apigateway-integration" : {
-          "type" : "aws_proxy",
           "uri" : "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:263015886377:function:addPolicy/invocations",
           "httpMethod" : "POST",
           "responses" : {
@@ -853,7 +811,8 @@
           "passthroughBehavior" : "when_no_match",
           "timeoutInMillis" : 29000,
           "responseTransferMode" : "BUFFERED",
-          "contentHandling" : "CONVERT_TO_TEXT"
+          "contentHandling" : "CONVERT_TO_TEXT",
+          "type" : "aws_proxy"
         }
       },
       "options" : {
@@ -887,7 +846,6 @@
           }
         },
         "x-amazon-apigateway-integration" : {
-          "type" : "mock",
           "responses" : {
             "default" : {
               "statusCode" : "200",
@@ -901,7 +859,8 @@
           "requestTemplates" : {
             "application/json" : "{\"statusCode\": 200}"
           },
-          "passthroughBehavior" : "when_no_match"
+          "passthroughBehavior" : "when_no_match",
+          "type" : "mock"
         }
       }
     },
@@ -923,7 +882,6 @@
           "InsuranceSystemCognitoAuthorizer" : [ ]
         } ],
         "x-amazon-apigateway-integration" : {
-          "type" : "aws_proxy",
           "uri" : "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:263015886377:function:getAdminStatistics/invocations",
           "httpMethod" : "POST",
           "responses" : {
@@ -934,7 +892,8 @@
           "passthroughBehavior" : "when_no_match",
           "timeoutInMillis" : 29000,
           "responseTransferMode" : "BUFFERED",
-          "contentHandling" : "CONVERT_TO_TEXT"
+          "contentHandling" : "CONVERT_TO_TEXT",
+          "type" : "aws_proxy"
         }
       },
       "options" : {
@@ -968,7 +927,6 @@
           }
         },
         "x-amazon-apigateway-integration" : {
-          "type" : "mock",
           "responses" : {
             "default" : {
               "statusCode" : "200",
@@ -982,7 +940,222 @@
           "requestTemplates" : {
             "application/json" : "{\"statusCode\": 200}"
           },
-          "passthroughBehavior" : "when_no_match"
+          "passthroughBehavior" : "when_no_match",
+          "type" : "mock"
+        }
+      }
+    },
+    "/claims/{claimNumber}" : {
+      "put" : {
+        "parameters" : [ {
+          "name" : "claimNumber",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateClaimStatusRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UpdateClaimStatusResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "InsuranceSystemCognitoAuthorizer" : [ ]
+        } ],
+        "x-amazon-apigateway-integration" : {
+          "uri" : "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:263015886377:function:updateClaimStatus/invocations",
+          "httpMethod" : "POST",
+          "responses" : {
+            "default" : {
+              "statusCode" : "200"
+            }
+          },
+          "passthroughBehavior" : "when_no_match",
+          "timeoutInMillis" : 29000,
+          "responseTransferMode" : "BUFFERED",
+          "contentHandling" : "CONVERT_TO_TEXT",
+          "type" : "aws_proxy"
+        }
+      },
+      "options" : {
+        "parameters" : [ {
+          "name" : "claimNumber",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "headers" : {
+              "Access-Control-Allow-Origin" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              },
+              "Access-Control-Allow-Methods" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              },
+              "Access-Control-Allow-Headers" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Empty"
+                }
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-integration" : {
+          "responses" : {
+            "default" : {
+              "statusCode" : "200",
+              "responseParameters" : {
+                "method.response.header.Access-Control-Allow-Methods" : "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'",
+                "method.response.header.Access-Control-Allow-Headers" : "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'",
+                "method.response.header.Access-Control-Allow-Origin" : "'*'"
+              }
+            }
+          },
+          "requestTemplates" : {
+            "application/json" : "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior" : "when_no_match",
+          "type" : "mock"
+        }
+      }
+    },
+    "/claims/{claimNumber}/resend" : {
+      "post" : {
+        "parameters" : [ {
+          "name" : "claimNumber",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ResendTokenNotificationRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResendTokenNotificationResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "InsuranceSystemCognitoAuthorizer" : [ ]
+        } ],
+        "x-amazon-apigateway-integration" : {
+          "uri" : "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:263015886377:function:resendTokenNotification/invocations",
+          "httpMethod" : "POST",
+          "responses" : {
+            "default" : {
+              "statusCode" : "200"
+            }
+          },
+          "passthroughBehavior" : "when_no_match",
+          "timeoutInMillis" : 29000,
+          "responseTransferMode" : "BUFFERED",
+          "contentHandling" : "CONVERT_TO_TEXT",
+          "type" : "aws_proxy"
+        }
+      },
+      "options" : {
+        "parameters" : [ {
+          "name" : "claimNumber",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "headers" : {
+              "Access-Control-Allow-Origin" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              },
+              "Access-Control-Allow-Methods" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              },
+              "Access-Control-Allow-Headers" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Empty"
+                }
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-integration" : {
+          "responses" : {
+            "default" : {
+              "statusCode" : "200",
+              "responseParameters" : {
+                "method.response.header.Access-Control-Allow-Methods" : "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'",
+                "method.response.header.Access-Control-Allow-Headers" : "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'",
+                "method.response.header.Access-Control-Allow-Origin" : "'*'"
+              }
+            }
+          },
+          "requestTemplates" : {
+            "application/json" : "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior" : "when_no_match",
+          "type" : "mock"
         }
       }
     },
@@ -1018,7 +1191,6 @@
           }
         },
         "x-amazon-apigateway-integration" : {
-          "type" : "mock",
           "responses" : {
             "default" : {
               "statusCode" : "200",
@@ -1032,7 +1204,8 @@
           "requestTemplates" : {
             "application/json" : "{\"statusCode\": 200}"
           },
-          "passthroughBehavior" : "when_no_match"
+          "passthroughBehavior" : "when_no_match",
+          "type" : "mock"
         }
       }
     }
@@ -1186,6 +1359,19 @@
                 }
               }
             }
+          }
+        }
+      },
+      "ResendTokenNotificationRequest" : {
+        "title" : "ResendTokenNotificationRequest",
+        "required" : [ "claimNumber", "policyNumber" ],
+        "type" : "object",
+        "properties" : {
+          "policyNumber" : {
+            "type" : "string"
+          },
+          "claimNumber" : {
+            "type" : "string"
           }
         }
       },
@@ -1584,6 +1770,24 @@
           } ]
         }
       },
+      "ResendTokenNotificationResponse" : {
+        "title" : "ResendTokenNotificationResponse",
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          },
+          "claimNumber" : {
+            "type" : "string"
+          },
+          "policyNumber" : {
+            "type" : "string"
+          },
+          "emailSent" : {
+            "type" : "boolean"
+          }
+        }
+      },
       "GetAdminStatisticsResponseClaimsByStatus" : {
         "type" : "object",
         "properties" : {
@@ -1884,8 +2088,8 @@
         "in" : "header",
         "x-amazon-apigateway-authtype" : "cognito_user_pools",
         "x-amazon-apigateway-authorizer" : {
-          "type" : "cognito_user_pools",
-          "providerARNs" : [ "arn:aws:cognito-idp:us-east-1:263015886377:userpool/us-east-1_z6m8OWbKY" ]
+          "providerARNs" : [ "arn:aws:cognito-idp:us-east-1:263015886377:userpool/us-east-1_z6m8OWbKY" ],
+          "type" : "cognito_user_pools"
         }
       }
     }

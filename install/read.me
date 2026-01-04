@@ -730,3 +730,96 @@ aws cognito-idp create-user-pool-domain
   Export with API Gateway extensions
   
   Editor : https://editor.swagger.io/
+
+
+  apigateway via shell
+  --------------------
+  #!/bin/bash
+set -e
+
+### ===== CONFIG =====
+OLD_ACCOUNT_ID="263015886377"
+REGION="us-east-1"
+API_NAME="InsuranceSystemAPI"
+COGNITO_USER_POOL_NAME="InsuranceSystemUserPool"
+OPENAPI_FILE="InsuranceSystemAPI-openapi.json"
+
+NEW_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+
+LAMBDA_FUNCTIONS=(
+  addClaim addPolicy deletePolicy getPolicy getPolicies
+  updateClaimStatus updatePolicy
+  getAdminDashboard getAdminDashboardDrilldown
+  getAdminStatistics getTokenData
+  addDamageAreas importInsuranceData resendTokenNotification
+)
+
+echo "Using AWS Account: $NEW_ACCOUNT_ID"
+echo "Region: $REGION"
+
+### ===== STEP 3: Replace Lambda Account ID =====
+echo "Replacing Lambda Account ID in OpenAPI file..."
+sed -i "s/$OLD_ACCOUNT_ID/$NEW_ACCOUNT_ID/g" "$OPENAPI_FILE"
+
+### ===== STEP 3: Import API Gateway =====
+echo "Importing API Gateway..."
+API_ID=$(aws apigateway import-rest-api \
+  --region $REGION \
+  --endpoint-configuration types=REGIONAL \
+  --body file://$OPENAPI_FILE \
+  --query id \
+  --output text)
+
+echo "Created API Gateway with ID: $API_ID"
+
+### ===== STEP 4: Fix Cognito Authorizer =====
+echo "Fixing Cognito Authorizer..."
+
+USER_POOL_ID=$(aws cognito-idp list-user-pools \
+  --max-results 20 \
+  --query "UserPools[?Name=='$COGNITO_USER_POOL_NAME'].Id | [0]" \
+  --output text)
+
+if [[ "$USER_POOL_ID" == "None" || -z "$USER_POOL_ID" ]]; then
+  echo "ERROR: Cognito User Pool not found"
+  exit 1
+fi
+
+AUTHORZER_ID=$(aws apigateway get-authorizers \
+  --rest-api-id $API_ID \
+  --query "items[?name=='InsuranceSystemCognitoAuthorizer'].id | [0]" \
+  --output text)
+
+aws apigateway update-authorizer \
+  --rest-api-id $API_ID \
+  --authorizer-id $AUTHORZER_ID \
+  --patch-operations \
+    op=replace,path=/providerARNs,value="arn:aws:cognito-idp:$REGION:$NEW_ACCOUNT_ID:userpool/$USER_POOL_ID"
+
+echo "Authorizer updated successfully"
+
+### ===== STEP 5: Allow API Gateway to invoke Lambdas =====
+echo "Granting API Gateway invoke permissions..."
+
+for FUNC in "${LAMBDA_FUNCTIONS[@]}"; do
+  aws lambda add-permission \
+    --function-name $FUNC \
+    --statement-id apigw-$API_ID-$FUNC \
+    --action lambda:InvokeFunction \
+    --principal apigateway.amazonaws.com \
+    --source-arn arn:aws:execute-api:$REGION:$NEW_ACCOUNT_ID:$API_ID/*/*/* \
+    2>/dev/null || echo "Permission already exists for $FUNC"
+done
+
+### ===== STEP 6: Deploy prod stage =====
+echo "Deploying prod stage..."
+aws apigateway create-deployment \
+  --rest-api-id $API_ID \
+  --stage-name prod
+
+echo "=========================================="
+echo "SUCCESS!"
+echo "API ID: $API_ID"
+echo "Invoke URL:"
+echo "https://$API_ID.execute-api.$REGION.amazonaws.com/prod"
+echo "=========================================="

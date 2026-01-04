@@ -72,7 +72,9 @@
     Set the new API_ID of the API Gateway you created (as shown in the left top of the resources page)
     Run the following command in the CloudShell terminal:
     ----------------------------------------------
-    API_ID=os9bz8dj84
+    REGION="us-east-1"
+    ACCOUNT_ID="263015886377" #MUST BE REPLACED !!!    
+    API_ID="06qgyhpfhb" #MUST BE REPLACED !!!    
     echo "Set lambdas functions permission"
     for FUNC in addClaim addPolicy deletePolicy getPolicy getPolicies updateClaimStatus updatePolicy getAdminDashboard getAdminDashboardDrilldown getAdminStatistics getTokenData addDamageAreas importInsuranceData resendTokenNotification
     do
@@ -81,7 +83,7 @@
         --statement-id apigw-$FUNC \
         --action lambda:InvokeFunction \
         --principal apigateway.amazonaws.com \
-        --source-arn arn:aws:execute-api:$REGION$:$ACCOUNT_ID$:$API_ID/*/*/*
+        --source-arn arn:aws:execute-api:$REGION:$ACCOUNT_ID:$API_ID/*/*/*
     done
     ----------------------------------------------
 
