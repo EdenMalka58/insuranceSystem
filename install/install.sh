@@ -1,4 +1,4 @@
-VERSION="v02"
+VERSION="v05"
 REGION="us-east-1"
 ACCOUNT_ID="263015886377" #MUST BE REPLACED !!!
 USER_POOL_NAME="InsuranceSystemUserPool-$VERSION"
@@ -7,9 +7,22 @@ BUCKET_NAME="insurance-claim-damage-pages-$VERSION"
 DOMAIN_PREFIX="insurance-claim-damage-$VERSION"
 CALLBACK_URLS="https://insurance-claim-damage-pages-$VERSION.s3.us-east-1.amazonaws.com/index.html"
 LOGOUT_URLS="https://insurance-claim-damage-pages-$VERSION.s3.us-east-1.amazonaws.com/index.html"
+SWAGGER_URL="https://insurance-claim-damage-pages-$VERSION.s3.us-east-1.amazonaws.com/swagger/index.html"
 ADMIN_EMAIL="edenony@gmail.com"
 AGENT_EMAIL="sahar81@gmail.com"
 PASSWORD="38388112Sm$"
+API_NAME="InsuranceSystemAPI"
+COGNITO_USER_POOL_NAME="InsuranceSystemUserPool"
+AUTHORIZER_NAME="InsuranceSystemCognitoAuthorizer"               
+OPENAPI_FILE="api-getaway.json"
+LAMBDA_FUNCTIONS=(
+  addClaim addPolicy deletePolicy getPolicy getPolicies
+  updateClaimStatus updatePolicy
+  getAdminDashboard getAdminDashboardDrilldown
+  getAdminStatistics getTokenData
+  addDamageAreas importInsuranceData resendTokenNotification
+)
+
 
 echo "Create Cognito User Pool (Email sign-in, required attributes)"
 USER_POOL_ID=$(aws cognito-idp create-user-pool \
@@ -124,29 +137,27 @@ aws cognito-idp admin-add-user-to-group \
 echo "Add lambdas layers"
 aws lambda publish-layer-version \
     --layer-name auth-layer \
-    --zip-file fileb:///home/cloudshell-user/auth-layer.zip \
+    --zip-file fileb://auth-layer.zip \
     --compatible-runtimes python3.14
 
 aws lambda publish-layer-version \
     --layer-name response-layer \
-    --zip-file fileb:///home/cloudshell-user/response-layer.zip \
+    --zip-file fileb://response-layer.zip \
     --compatible-runtimes python3.14
 
 echo "Add lambdas functions"
-for FUNC in addClaim addPolicy deletePolicy getPolicy getPolicies updateClaimStatus updatePolicy getAdminDashboard getAdminDashboardDrilldown getAdminStatistics getTokenData addDamageAreas importInsuranceData resendTokenNotification
-do
+for FUNC in "${LAMBDA_FUNCTIONS[@]}"; do
   echo "Creating $FUNC ..."
   aws lambda create-function \
     --function-name $FUNC \
     --runtime python3.14 \
     --role arn:aws:iam::"$ACCOUNT_ID":role/LabRole \
     --handler $FUNC.handler \
-    --zip-file fileb:///home/cloudshell-user/$FUNC.zip
+    --zip-file fileb://$FUNC.zip
 done
 
 echo "Set lambdas functions layers"
-for FUNC in addClaim addPolicy deletePolicy getPolicy getPolicies updateClaimStatus updatePolicy getAdminDashboard getAdminDashboardDrilldown getAdminStatistics getTokenData addDamageAreas importInsuranceData resendTokenNotification
-do
+for FUNC in "${LAMBDA_FUNCTIONS[@]}"; do
   echo "Adding layers to $FUNC ..."
   aws lambda update-function-configuration \
     --function-name $FUNC \
@@ -184,7 +195,8 @@ aws dynamodb create-table \
       ],
       "Projection": { "ProjectionType": "ALL" }
     }
-  ]'
+  ]' \
+  --output text > /dev/null
 
 echo "Create Dynamo DB database is in process..."
 aws dynamodb wait table-exists --table-name InsuranceSystem
@@ -198,7 +210,7 @@ echo "Import records to database..."
 aws lambda invoke \
   --function-name importInsuranceData \
   --cli-binary-format raw-in-base64-out \
-  --payload fileb:///home/cloudshell-user/policy.json \
+  --payload fileb://policy.json \
   response.json
 
 echo "Create S3 bucket"
@@ -230,11 +242,59 @@ aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy '{
   }]
 }'
 
+echo "Import API getaway file"
+echo "Replacing Lambda Account and user poll ID in OpenAPI file..."
+sed -i "s/ACCOUNT_ID/$ACCOUNT_ID/g" "$OPENAPI_FILE"
+sed -i "s/USER_POOL_ID/$USER_POOL_ID/g" "$OPENAPI_FILE"
 
-echo "========================================================="
+API_ID=$(aws apigateway import-rest-api \
+  --region $REGION \
+  --body fileb://$OPENAPI_FILE \
+  --no-cli-pager \
+  --no-fail-on-warnings \
+  --query id \
+  --output text)
+
+echo "Created API Gateway with ID: $API_ID"
+
+echo "Granting API Gateway invoke permissions..."
+for FUNC in "${LAMBDA_FUNCTIONS[@]}"; do
+  aws lambda add-permission \
+    --function-name $FUNC \
+    --statement-id apigw-$API_ID-$FUNC \
+    --action lambda:InvokeFunction \
+    --principal apigateway.amazonaws.com \
+    --source-arn arn:aws:execute-api:$REGION:$ACCOUNT_ID:$API_ID/*/*/*
+done
+
+echo "Deploying prod stage..."
+aws apigateway create-deployment \
+  --rest-api-id $API_ID \
+  --stage-name prod
+
+CLIENT_ID=$(aws cognito-idp list-user-pool-clients \
+  --user-pool-id $USER_POOL_ID \
+  --query "UserPoolClients[0].ClientId" \
+  --output text)
+
+COGNITO_DOMAIN_FULL="https://${DOMAIN_PREFIX}.auth.us-east-1.amazoncognito.com"
+INVOKE_URL="https://$API_ID.execute-api.$REGION.amazonaws.com/prod"
+
+echo "Create config.js file"
+cp config.js config.js.bak   # backup first
+
+sed -i \
+  -e "s|COGNITO_DOMAIN_FULL_PLACEHOLDER|$COGNITO_DOMAIN_FULL|g" \
+  -e "s|CLIENT_ID_PLACEHOLDER|$CLIENT_ID|g" \
+  -e "s|REDIRECT_URI_PLACEHOLDER|$CALLBACK_URLS|g" \
+  -e "s|INVOKE_URL_PLACEHOLDER|$INVOKE_URL|g" \
+  config.js
+
+echo "Update configuration file to S3 bucket"
+aws s3 cp config.js s3://$BUCKET_NAME/
+
+echo "=========================================="
 echo "Insurance System setup completed successfully."
-echo "========================================================="
-
-
-
-  
+echo "## WebSite URL: $CALLBACK_URLS"
+echo "## Swagger URL: $SWAGGER_URL"
+echo "=========================================="

@@ -829,7 +829,7 @@ echo "=========================================="
 API_NAME="InsuranceSystemAPI"
 COGNITO_USER_POOL_NAME="InsuranceSystemUserPool"
 AUTHORIZER_NAME="InsuranceSystemCognitoAuthorizer"               
-OPENAPI_FILE="api-getaway-openapi.json"
+OPENAPI_FILE="api-getaway.json"
 LAMBDA_FUNCTIONS=(
   addClaim addPolicy deletePolicy getPolicy getPolicies
   updateClaimStatus updatePolicy
@@ -837,6 +837,7 @@ LAMBDA_FUNCTIONS=(
   getAdminStatistics getTokenData
   addDamageAreas importInsuranceData resendTokenNotification
 )
+
 
 
 echo "Import API getaway file"
@@ -851,19 +852,19 @@ API_ID=$(aws apigateway import-rest-api \
   --query id \
   --output text)
 
-API_ID=$(aws apigateway import-rest-api --region $REGION --body file://$OPENAPI_FILE --query id --output text)
-aws apigateway import-rest-api \
-  --region us-east-1 \
-  --body file://api-getaway-openapi.json \
-  --debug
-
-
+API_ID=$(aws apigateway import-rest-api \
+  --region $REGION \
+  --body fileb://$OPENAPI_FILE \
+  --no-cli-pager \
+  --no-fail-on-warnings \
+  --query id \
+  --output text)
 
 echo "Created API Gateway with ID: $API_ID"
 
+
 echo "Fixing Cognito Authorizer..."
-
-
+USER_POOL_ID="us-east-1_jG89Rm5UQ"
 AUTHORIZER_ID=$(aws apigateway get-authorizers \
   --rest-api-id $API_ID \
   --query "items[?name=='$AUTHORIZER_NAME'].id | [0]" \
@@ -873,7 +874,7 @@ aws apigateway update-authorizer \
   --rest-api-id $API_ID \
   --authorizer-id $AUTHORIZER_ID \
   --patch-operations \
-    op=replace,path=/providerARNs,value="arn:aws:cognito-idp:$REGION:$ACCOUNT_ID:userpool/$USER_POOL_ID"
+    op=add,path=/providerARNs,value="arn:aws:cognito-idp:$REGION:$ACCOUNT_ID:userpool/$USER_POOL_ID"
 
 echo "Authorizer updated successfully"
 
