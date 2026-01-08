@@ -169,16 +169,9 @@ function getUserTokenData() {
   return null;
 }
 
-function getUserEmail() {
-  const user = getUserTokenData();
-  if (user) return user.email;
-}
-
 function updateNavbar() {
   const userDropdown = document.getElementById("userProfileDropdown");
 
-  const dashboardItem = $(".dashboard-item");
-  const policiesItem = $(".policies-item");
   const userImage = $(".user-profile-img");
   const userName = $(".user-name");
 

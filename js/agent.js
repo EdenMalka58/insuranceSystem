@@ -1,3 +1,5 @@
+const PAGE_SIZE = 5;
+
 let policies = [];
 let currentPolicyToDelete = null;
 let currentPolicyToChange = null;
@@ -5,7 +7,6 @@ let currentClaimToChange = null;
 let currentClaimToChangeBtn = null;
 let isEditMode = false;
 let currentPage = 1;
-let pageSize = 5;
 let lastQuery = null;
 let loadingPolicies = false;
 let hasNextPage = true;
@@ -29,7 +30,7 @@ async function loadPolicies(query, reset = true) {
 
   if (query) params.push(`query=${encodeURIComponent(query)}`);
   params.push(`page=${currentPage}`);
-  params.push(`pageSize=${pageSize}`);
+  params.push(`pageSize=${PAGE_SIZE}`);
 
   url += "?" + params.join("&");
 
@@ -271,7 +272,7 @@ async function submitClaim(e) {
     function (data) {
       const successMessage = "<span>Claim opened successfully</span><br/>";
       const linkSentMessage = data.emailSent
-        ? "<span>A link is sent to the insured for reporting vehicle damage.</span>"
+        ? "<span>A link sent to the insured driver for reporting vehicle damage.</span>"
         : "";
       showAlert(`${successMessage}${linkSentMessage}`, "success", "Success");
       bootstrap.Modal.getInstance($("#claimModal")).hide();
@@ -361,7 +362,7 @@ function resendClaimNotification(btn, policyNumber, claimNumber, insuredName) {
     '<i class="fa-regular fa-paper-plane"></i> Resend claim notification'
   );
   approveClaimModalText.html(
-    `Are you sure you want to send claim <strong>${claimNumber}</strong> notification to <strong>${insuredName}}</strong> ?`
+    `Are you sure you want to send claim <strong>${claimNumber}</strong> notification to <strong>${insuredName}</strong> ?`
   );
   approveClaimModalBtn
     .off("click")
@@ -409,7 +410,7 @@ async function confirmResendClaimNotification() {
   const url = `claims/${encodeURIComponent(claimNumber)}/resend`;
   await apiCallAsync("POST", url, claimData,
     function () {
-      const successMessage = "A link is sent to the insured for reporting vehicle damage.";
+      const successMessage = "A link sent to the insured driver for reporting vehicle damage.";
       showAlert(successMessage, "success", "Success");
       bootstrap.Modal.getInstance($("#approveClaimModal")).hide();
     },

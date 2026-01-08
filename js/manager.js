@@ -117,7 +117,8 @@ function buildChart(chartData, year) {
       maintainAspectRatio: true,
       plugins: {
         legend: {
-          display: false,
+          display: true,
+          position: "bottom",
         },
         tooltip: {
           callbacks: {

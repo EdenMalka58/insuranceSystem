@@ -1,4 +1,4 @@
-VERSION="v05"
+VERSION="v06"
 REGION="us-east-1"
 ACCOUNT_ID="263015886377" #MUST BE REPLACED !!!
 USER_POOL_NAME="InsuranceSystemUserPool-$VERSION"
@@ -297,4 +297,6 @@ echo "=========================================="
 echo "Insurance System setup completed successfully."
 echo "## WebSite URL: $CALLBACK_URLS"
 echo "## Swagger URL: $SWAGGER_URL"
+echo "## IMPORTANT: To set the default Managed login style, go to:"
+echo "## AWS Console → Cognito → User Pools → $USER_POOL_NAME → App client: $APP_CLIENT_NAME → Managed login → Style → Create style."
 echo "=========================================="

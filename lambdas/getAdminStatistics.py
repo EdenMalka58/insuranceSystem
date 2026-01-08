@@ -33,7 +33,7 @@ def handler(event, context):
         "claimsByVehicleYear": claims_by_vehicle_year(claims, policies),
     }
 
-    return ok(200, stats)
+    return ok(stats)
 
 
 # ---------------- HELPERS ----------------
