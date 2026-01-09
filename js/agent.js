@@ -381,7 +381,7 @@ async function confirmClaimApprove(isApproved) {
     isApproved: isApproved,
   };
 
-  const url = `claims/${encodeURIComponent(claimNumber)}`;
+  const url = `claims/${encodeURIComponent(claimData.claimNumber)}`;
   await apiCallAsync("PUT", url, claimData,
     function (data) {
       showAlert(
@@ -417,7 +417,7 @@ async function confirmResendClaimNotification() {
     function (error) {
       showAlert(error.error, "error", "Error resending claim notification");
     },
-    $("#resend-claim-btn")
+    currentClaimToChangeBtn
   );
 }
 

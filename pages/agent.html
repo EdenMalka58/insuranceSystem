@@ -97,7 +97,7 @@
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label for="policyNumber" class="form-label">Policy Number <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="policyNumber" required>
+                <input type="text" class="form-control" id="policyNumber" maxlength="10" required>
               </div>
             </div>
 
@@ -105,19 +105,19 @@
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label for="insuredName" class="form-label">Full Name <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="insuredName" required>
+                <input type="text" class="form-control" id="insuredName" maxlength="50" required>
               </div>
               <div class="col-md-6 mb-3">
                 <label for="insuredId" class="form-label">ID Number <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="insuredId" required>
+                <input type="text" class="form-control" id="insuredId" maxlength="20" required>
               </div>
               <div class="col-md-6 mb-3">
                 <label for="insuredEmail" class="form-label">Email <span class="text-danger">*</span></label>
-                <input type="email" class="form-control" id="insuredEmail" required>
+                <input type="email" class="form-control" id="insuredEmail" maxlength="80" required>
               </div>
               <div class="col-md-6 mb-3">
                 <label for="insuredPhone" class="form-label">Phone <span class="text-danger">*</span></label>
-                <input type="tel" class="form-control" id="insuredPhone" required>
+                <input type="tel" class="form-control" id="insuredPhone" maxlength="40" required>
               </div>
             </div>
 
@@ -125,15 +125,15 @@
             <div class="row">
               <div class="col-md-4 mb-3">
                 <label for="vehicleModel" class="form-label">Vehicle Model <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="vehicleModel" required>
+                <input type="text" class="form-control" id="vehicleModel" maxlength="50" required>
               </div>
               <div class="col-md-4 mb-3">
                 <label for="vehicleYear" class="form-label">Year <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" id="vehicleYear" required>
+                <input type="number" class="form-control" id="vehicleYear" maxlength="4" required>
               </div>
               <div class="col-md-4 mb-3">
                 <label for="plateNumber" class="form-label">Plate Number <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="plateNumber" required>
+                <input type="text" class="form-control" id="plateNumber" maxlength="20" required>
               </div>
             </div>
 
@@ -149,11 +149,11 @@
               </div>
               <div class="col-md-6 mb-3">
                 <label for="insuredValue" class="form-label">Insured Value $<span class="text-danger">*</span></label>
-                <input type="number" class="form-control" id="insuredValue" required>
+                <input type="number" class="form-control" id="insuredValue" min="1000" max="1000000" required>
               </div>
               <div class="col-md-6 mb-3">
                 <label for="deductibleValue" class="form-label">Deductible Value $<span class="text-danger">*</span></label>
-                <input type="number" class="form-control" id="deductibleValue" required>
+                <input type="number" class="form-control" id="deductibleValue" min="0" max="100000" required>
               </div>
             </div>
 
@@ -180,7 +180,7 @@
               <input type="hidden" id="claimPolicyNumber">
               <div class="mb-3">
                 <label for="claimNumber" class="form-label">Claim Number <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="claimNumber" required>
+                <input type="text" class="form-control" id="claimNumber" maxlength="10" required>
               </div>
               <div class="mb-3">
                 <label for="claimDate" class="form-label">Claim Date <span class="text-danger">*</span></label>
@@ -188,7 +188,7 @@
               </div>
               <div class="mb-3">
                 <label for="claimDescription" class="form-label">Description <span class="text-danger">*</span></label>
-                <textarea class="form-control" id="claimDescription" rows="4" required></textarea>
+                <textarea class="form-control" id="claimDescription" rows="4" maxlength="4000" required></textarea>
               </div>
             </form>
           </div>
