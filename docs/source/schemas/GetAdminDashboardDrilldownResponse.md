@@ -1,0 +1,4 @@
+# GetAdminDashboardDrilldownResponse
+
+| Field | Type | Required |
+|---|---|---|

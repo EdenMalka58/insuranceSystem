@@ -59,9 +59,6 @@ def get_or_create_email_topic(email):
 
     return topic_arn
 
-def delete_topic(topic_arn):
-    sns.delete_topic(TopicArn=topic_arn)
-
 def send_claim_notification(claim_number, policy_number, landing_url, insured_name, insured_email, plate, vehicle):
     """Send claim notification via SNS"""
 
@@ -203,7 +200,7 @@ def handler(event, context):
 
         # Send notification via SNS
         if insured_email:
-            notification_sent, notification_result, topic_arn = send_claim_notification(
+            notification_sent, notification_result = send_claim_notification(
                 claim_number=claim_number,
                 policy_number=policy_number,
                 landing_url=landing_url,
@@ -215,8 +212,6 @@ def handler(event, context):
         
         if not notification_sent:
             print(f"Failed to send email: {notification_result}")
-        #else:
-        #    delete_topic(topic_arn)
 
         return ok({
             "message": "Claim created successfully",
