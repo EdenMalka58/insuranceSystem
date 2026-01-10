@@ -3,7 +3,7 @@ Insurance System – Backend Documentation
 
 Welcome to the backend documentation for the **Insurance System**.
 
-This documentation describes the AWS Lambda–based backend, including:
+This documentation describes the AWS Lambda - based backend, including:
 - API Gateway endpoints
 - Lambda handler functions
 - Shared Lambda Layers
