@@ -13,6 +13,16 @@ dynamo = boto3.resource("dynamodb")
 sns = boto3.client('sns', region_name='us-east-1')
 table = dynamo.Table("InsuranceSystem")
 
+def build_damages_url(token):
+    bucket = os.environ["S3_BUCKET_NAME"]
+    page = os.environ["S3_OBJECT_PATH"]
+
+    session = boto3.session.Session()
+    region = session.region_name
+
+    return f"https://{bucket}.s3.{region}.amazonaws.com/{page}?token={token}"
+
+
 def get_or_create_email_topic(email):
     topic_name = f"claim-email-{email.replace('@','-').replace('.','-')}"
 
@@ -168,10 +178,8 @@ def handler(event, context):
         now = int(time.time())
         expires_at = now + 3600 * 5  # five hours
         # Link to landing page
-        landing_url = (
-            "https://insurance-claim-damage-pages.s3.us-east-1.amazonaws.com/pages/damages.html"
-            f"?token={token}"
-        )
+        landing_url = build_damages_url(token)
+
         # Create token
         table.put_item(Item={
             "PK": f"TOKEN#{token}",
