@@ -396,7 +396,7 @@ aws lambda publish-layer-version \
     --compatible-runtimes python3.14
 
 ACCOUNT_ID=263015886377 <REPLACE>
-for FUNC in addClaim addPolicy deletePolicy getPolicy getPolicies updateClaimStatus updatePolicy getAdminDashboard getAdminDashboardDrilldown getAdminStatistics getAdminStatisticsDrilldown getTokenData addDamageAreas importInsuranceData resendTokenNotification
+for FUNC in addClaim addPolicy deletePolicy getPolicy getPolicies updateClaimStatus updatePolicy getAdminDashboard getAdminDashboardDrilldown getAdminStatistics getTokenData addDamageAreas importInsuranceData resendTokenNotification
 do
   echo "Creating $FUNC ..."
   aws lambda create-function \

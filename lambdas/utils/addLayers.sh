@@ -8,9 +8,7 @@ aws lambda update-function-configuration --function-name updatePolicy --layers a
 aws lambda update-function-configuration --function-name getAdminDashboard --layers arn:aws:lambda:us-east-1:044017822232:layer:damage-inspector-response:1 arn:aws:lambda:us-east-1:044017822232:layer:damage-inspector-auth:2
 aws lambda update-function-configuration --function-name getAdminDashboardDrilldown --layers arn:aws:lambda:us-east-1:044017822232:layer:damage-inspector-response:1 arn:aws:lambda:us-east-1:044017822232:layer:damage-inspector-auth:2
 aws lambda update-function-configuration --function-name getAdminStatistics --layers arn:aws:lambda:us-east-1:044017822232:layer:damage-inspector-response:1 arn:aws:lambda:us-east-1:044017822232:layer:damage-inspector-auth:2
-aws lambda update-function-configuration --function-name getAdminStatisticsDrilldown --layers arn:aws:lambda:us-east-1:044017822232:layer:damage-inspector-response:1 arn:aws:lambda:us-east-1:044017822232:layer:damage-inspector-auth:2
 aws lambda update-function-configuration --function-name getTokenData --layers arn:aws:lambda:us-east-1:044017822232:layer:damage-inspector-response:1 
 aws lambda update-function-configuration --function-name addDamageAreas --layers arn:aws:lambda:us-east-1:044017822232:layer:damage-inspector-response:1 
 aws lambda update-function-configuration --function-name importInsuranceData --layers arn:aws:lambda:us-east-1:044017822232:layer:damage-inspector-response:1 
 aws lambda update-function-configuration --function-name resendTokenNotification --layers arn:aws:lambda:us-east-1:044017822232:layer:damage-inspector-response:1 
-

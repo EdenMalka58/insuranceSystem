@@ -27,7 +27,7 @@ aws lambda create-function \
 aws lambda update-function-configuration --function-name addClaim --layers arn:aws:lambda:us-east-1:"$ACCOUNT_ID":layer:auth-layer:1 arn:aws:lambda:us-east-1:"$ACCOUNT_ID":layer:response-layer:1
 
 
-for FUNC in addClaim addPolicy deletePolicy getPolicy getPolicies updateClaimStatus updatePolicy getAdminDashboard getAdminDashboardDrilldown getAdminStatistics getAdminStatisticsDrilldown getTokenData addDamageAreas importInsuranceData
+for FUNC in addClaim addPolicy deletePolicy getPolicy getPolicies updateClaimStatus updatePolicy getAdminDashboard getAdminDashboardDrilldown getAdminStatistics getTokenData addDamageAreas importInsuranceData
 do
   echo "Creating $FUNC ..."
   aws lambda create-function \

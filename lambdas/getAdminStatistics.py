@@ -45,7 +45,7 @@ def bucket(value, ranges):
     return ranges[-1][0]
 
 
-def chart(chart_type, labels, data, drill_key, title):
+def chart(chart_type, labels, data, title):
     return {
         "title": title,
         "type": chart_type,
@@ -53,11 +53,6 @@ def chart(chart_type, labels, data, drill_key, title):
             "labels": labels,
             "datasets": [{"label": "Count", "data": data}]
         },
-        "drilldown": {
-            "enabled": True,
-            "endpoint": "/admin/statistics/drilldown",
-            "key": drill_key
-        }
     }
 
 
@@ -67,14 +62,14 @@ def claims_by_status(claims):
     c = defaultdict(int)
     for i in claims:
         c[i["status"]] += 1
-    return chart("pie", list(c.keys()), list(c.values()), "claimsByStatus", "Claims by Status")
+    return chart("pie", list(c.keys()), list(c.values()), "Claims by Status")
 
 
 def claims_by_action(claims):
     c = defaultdict(int)
     for i in claims:
         c[i["approvedAction"]] += 1
-    return chart("bar", list(c.keys()), list(c.values()), "claimsByApprovedAction", "Claims by Approval Method")
+    return chart("bar", list(c.keys()), list(c.values()), "Claims by Approval Method")
 
 
 def claims_over_time(claims):
@@ -82,7 +77,7 @@ def claims_over_time(claims):
     for i in claims:
         c[i["createdAt"][:10]] += 1
     labels = sorted(c.keys())
-    return chart("line", labels, [c[d] for d in labels], "claimsByDate", "Claims Over Time")
+    return chart("line", labels, [c[d] for d in labels], "Claims Over Time")
 
 
 def approved_value_by_month(claims):
@@ -90,7 +85,7 @@ def approved_value_by_month(claims):
     for i in claims:
         s[i["createdAt"][:7]] += int(i.get("approvedValue", 0))
     labels = sorted(s.keys())
-    return chart("bar", labels, [s[m] for m in labels], "approvedValueByMonth", "Approved Claim Value by Month")
+    return chart("bar", labels, [s[m] for m in labels], "Approved Claim Value by Month")
 
 
 def policies_over_time(policies):
@@ -98,7 +93,7 @@ def policies_over_time(policies):
     for p in policies:
         c[p["createdAt"][:10]] += 1
     labels = sorted(c.keys())
-    return chart("line", labels, [c[d] for d in labels], "policiesByDate", "Policies Created Over Time")
+    return chart("line", labels, [c[d] for d in labels], "Policies Created Over Time")
 
 
 def claims_by_vehicle_year(claims, policies):
@@ -107,4 +102,4 @@ def claims_by_vehicle_year(claims, policies):
         p = policies.get(cl["policyNumber"])
         if p:
             c[str(p["vehicle"]["year"])] += 1
-    return chart("bar", list(c.keys()), list(c.values()), "claimsByVehicleYear", "Claims by Vehicle Year")
+    return chart("bar", list(c.keys()), list(c.values()), "Claims by Vehicle Year")
