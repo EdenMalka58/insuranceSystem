@@ -11,8 +11,10 @@ Allowed sign-out URLs
 http://localhost:62786/index.html
 https://insurance-claim-damage-pages.s3.us-east-1.amazonaws.com/index.html
 Add groups: admin, agent
-Add 2 users with password : edenony@gmail.com, sahar81@gmail.com 38388112Sm$
-set groups to users: edenony@gmail.com admin, sahar81@gmail.com agent
+Add 2 users with password : insurance.system.agent@gmail.com, insurance.system.agent@gmail.com 1463Aa99$
+set groups to users: insurance.system.agent@gmail.com, insurance.system.agent@gmail.com agent
+
+insurance.system.agent@gmail.com
 
 
 1 - Variables (edit only if needed)
@@ -24,9 +26,9 @@ APP_CLIENT_NAME="InsuranceSystem"
 CALLBACK_URLS="http://localhost:62786/index.html https://insurance-claim-damage-pages.s3.us-east-1.amazonaws.com/index.html"
 LOGOUT_URLS="http://localhost:62786/index.html https://insurance-claim-damage-pages.s3.us-east-1.amazonaws.com/index.html"
 
-ADMIN_EMAIL="edenony@gmail.com"
-AGENT_EMAIL="sahar81@gmail.com"
-PASSWORD="38388112Sm$"
+ADMIN_EMAIL="insurance.system.agent@gmail.com"
+AGENT_EMAIL="insurance.system.manager@gmail.com"
+PASSWORD="1463Aa99$"
 
 2- Create Cognito User Pool (Email sign-in, required attributes)
 -------------------------------------------

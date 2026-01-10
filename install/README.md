@@ -29,8 +29,8 @@
     Go to Amazon S3 → Buckets → insurance-claim-damage-pages
     Click index.html and click open
     These are the users for testing
-    sahar81@gmail.com/38388112Sm$ - for agent
-    edenony@gmail.com/38388112Sm$ - for admin
+    insurance.system.agent@gmail.com/1463Aa99$ - for agent
+    insurance.system.manager@gmail.com/1463Aa99$ - for admin
     ## WebSite https://insurance-claim-damage-pages-v05.s3.us-east-1.amazonaws.com/index.html
     ## Swagger https://insurance-claim-damage-pages-v05.s3.us-east-1.amazonaws.com/swagger/index.html
 ## -------------------------------------------------------------------------------------------------------

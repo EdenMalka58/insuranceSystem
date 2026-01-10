@@ -8,9 +8,9 @@ DOMAIN_PREFIX="insurance-claim-damage-$VERSION"
 CALLBACK_URLS="https://insurance-claim-damage-pages-$VERSION.s3.us-east-1.amazonaws.com/index.html"
 LOGOUT_URLS="https://insurance-claim-damage-pages-$VERSION.s3.us-east-1.amazonaws.com/index.html"
 SWAGGER_URL="https://insurance-claim-damage-pages-$VERSION.s3.us-east-1.amazonaws.com/swagger/index.html"
-ADMIN_EMAIL="edenony@gmail.com"
-AGENT_EMAIL="sahar81@gmail.com"
-PASSWORD="38388112Sm$"
+ADMIN_EMAIL="insurance.system.agent@gmail.com"
+AGENT_EMAIL="insurance.system.manager@gmail.com"
+PASSWORD="1463Aa99$"
 API_NAME="InsuranceSystemAPI"
 COGNITO_USER_POOL_NAME="InsuranceSystemUserPool"
 AUTHORIZER_NAME="InsuranceSystemCognitoAuthorizer"               
@@ -163,6 +163,24 @@ for FUNC in "${LAMBDA_FUNCTIONS[@]}"; do
     --function-name $FUNC \
     --layers arn:aws:lambda:us-east-1:"$ACCOUNT_ID":layer:auth-layer:1 arn:aws:lambda:us-east-1:"$ACCOUNT_ID":layer:response-layer:1
 done
+
+echo "Set addClaim lambda environment variables"
+
+FUNCTION_NAME="addClaim"
+DAMAGES_PAGE_PATH="pages/damages.html"
+
+echo "Updating environment variables for Lambda: $FUNCTION_NAME"
+
+aws lambda update-function-configuration \
+  --function-name "$FUNCTION_NAME" \
+  --environment "Variables={
+    S3_BUCKET_NAME=$BUCKET_NAME,
+    S3_OBJECT_PATH=$DAMAGES_PAGE_PATH
+  }" \
+  --output text > /dev/null
+
+echo "Environment variables updated successfully"
+
 
 echo "Create Dynamo DB database"
 aws dynamodb create-table \
