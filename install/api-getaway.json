@@ -139,7 +139,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/GetAdminStatisticsResponse"
+                  "$ref" : "#/components/schemas/GetTokenDataResponse"
                 }
               }
             }
@@ -1504,6 +1504,49 @@
         "properties" : {
           "tokenId" : {
             "type" : "string"
+          }
+        }
+      },
+      "GetTokenDataResponse": {
+        "title": "GetTokenDataResponse",
+        "type": "object",
+        "properties" : {
+          "policyNumber" : {
+            "type" : "string"
+          },
+          "claimNumber" : {
+            "type" : "string"
+          },
+          "insured" : {
+            "type" : "object",
+            "properties" : {
+              "name" : {
+                "type" : "string"
+              },
+              "email" : {
+                "type" : "string"
+              },
+              "phone" : {
+                "type" : "string"
+              },
+              "idNumber" : {
+                "type" : "string"
+              }
+            }
+          },
+          "vehicle" : {
+            "type" : "object",
+            "properties" : {
+              "model" : {
+                "type" : "string"
+              },
+              "year" : {
+                "type" : "integer"
+              },
+              "plateNumber" : {
+                "type" : "string"
+              }
+            }
           }
         }
       },

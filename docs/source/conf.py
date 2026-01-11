@@ -42,7 +42,7 @@ myst_heading_anchors = 3
 
 # -- Options for HTML output -------------------------------------------------
 
-html_theme = "sphinx_rtd_theme"
+html_theme = "furo"
 
 html_theme_options = {
     "collapse_navigation": False,

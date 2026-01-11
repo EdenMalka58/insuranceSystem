@@ -1,0 +1,31 @@
+/* Make content full width */
+.main-content {
+    max-width: none;
+}
+
+/* Optional: increase reading comfort */
+.content {
+    padding-left: 3rem;
+    padding-right: 3rem;
+}
+
+/* Headings */
+h1, h2, h3 {
+    font-weight: 600;
+}
+
+/* Tables (very AWS-like) */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th {
+    background-color: var(--color-background-secondary);
+    font-weight: 600;
+}
+
+/* Code blocks */
+pre {
+    border-radius: 6px;
+}
