@@ -31,6 +31,6 @@
     These are the users for testing
     insurance.system.agent@gmail.com/1463Aa99$ - for agent
     insurance.system.manager@gmail.com/1463Aa99$ - for admin
-    ## WebSite https://insurance-claim-damage-pages-v05.s3.us-east-1.amazonaws.com/index.html
-    ## Swagger https://insurance-claim-damage-pages-v05.s3.us-east-1.amazonaws.com/swagger/index.html
+    ## WebSite https://insurance-claim-damage-pages-v01.s3.us-east-1.amazonaws.com/index.html
+    ## Swagger https://insurance-claim-damage-pages-v01.s3.us-east-1.amazonaws.com/swagger/index.html
 ## -------------------------------------------------------------------------------------------------------
