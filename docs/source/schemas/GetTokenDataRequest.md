@@ -1,5 +1,7 @@
+(gettokendatarequest)=
+
 # GetTokenDataRequest
 
-| Field | Type | Required |
-|---|---|---|
-| tokenId | string | No |
+| Field | Type | Required | Description |
+|------|------|----------|-------------|
+| tokenId | string | No | Details of tokenId |

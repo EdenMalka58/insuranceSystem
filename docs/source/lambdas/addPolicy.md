@@ -53,9 +53,9 @@ print(response)
 | Field | Type | Required | Description |
 |------|------|----------|-------------|
 | `policyNumber` | `string` | Yes | Unique identifier of the insurance policy |
-| `insured` | `object` | Yes | Personal details of the insured individual |
-| `vehicle` | `object` | Yes | Vehicle information covered by the policy |
-| `validity` | `object` | Yes | Policy coverage period including start and end dates |
+| `insured` | object [`insured`](addpolicyrequest_insured) | No | Insured party personal and contact details |
+| `vehicle` | object [`vehicle`](addpolicyrequest_vehicle) | No | Vehicle details covered by the policy |
+| `validity` | object [validity](addpolicyrequest_validity) | Yes | Policy coverage period including start and end dates |
 | `insuredValue` | `number` | Yes | Total insured value covered by the policy |
 | `deductibleValue` | `number` | Yes | Deductible amount applied to claims under the policy |
 

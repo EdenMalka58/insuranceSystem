@@ -1,5 +1,7 @@
+(updatepolicyresponse)=
+
 # UpdatePolicyResponse
 
-| Field | Type | Required |
-|---|---|---|
-| message | string | No |
+| Field | Type | Required | Description |
+|------|------|----------|-------------|
+| message | string | No | Details of message |

@@ -1,6 +1,8 @@
+(getadminstatisticsresponseclaimsbystatus_data)=
+
 # GetAdminStatisticsResponseClaimsByStatus_data
 
-| Field | Type | Required |
-|---|---|---|
-| labels | array | No |
-| datasets | array | No |
+| Field | Type | Required | Description |
+|------|------|----------|-------------|
+| labels | array | No | Details of labels |
+| datasets | array | No | Details of datasets |

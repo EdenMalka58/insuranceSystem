@@ -39,4 +39,4 @@ _No request body._
 |------|------|----------|-------------|
 | `policy` | `object` | No | Policy details including insured, vehicle, validity period, and coverage values |
 | `claimsCount` | `integer` | No | Total number of claims associated with the policy |
-| `claims` | `array` | No | List of claim records linked to the policy |
+| `claims` | array of [`claim`](getpolicyresponse_claims)  | No | List of claim records linked to the policy |

@@ -1,8 +1,10 @@
+(updatepolicyrequest_vehicle)=
+
 # UpdatePolicyRequest_vehicle
 
-| Field | Type | Required |
-|---|---|---|
-| make | string | No |
-| model | string | No |
-| year | integer | No |
-| licensePlate | string | No |
+| Field | Type | Required | Description |
+|------|------|----------|-------------|
+| make | string | No | Details of make |
+| model | string | No | Details of model |
+| year | integer | No | Details of year |
+| licensePlate | string | No | Details of licensePlate |

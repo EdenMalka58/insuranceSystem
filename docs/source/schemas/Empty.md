@@ -1,4 +1,0 @@
-# Empty
-
-| Field | Type | Required |
-|---|---|---|

@@ -11,21 +11,45 @@ functions.
    :maxdepth: 1
    :caption: Core Schemas
 
+   AddClaimDamagesRequest
+   AddClaimDamagesRequest_damageAreas
+   AddClaimDamagesResponse
+   AddClaimDamagesResponse_damageAreas
    AddClaimRequest
    AddClaimResponse
-   UpdateClaimStatusRequest
-   UpdateClaimStatusResponse
+   AddPolicyRequest
+   AddPolicyRequest_insured
+   AddPolicyRequest_validity
+   AddPolicyRequest_vehicle
+   AddPolicyResponse
+   DeletePolicyResponse
+   GetAdminDashboardDrilldownResponse
+   GetAdminDashboardResponse
+   GetAdminDashboardResponse_activity
+   GetAdminDashboardResponse_claimsOverview
+   GetAdminDashboardResponse_claimsOverview_datasets
+   GetAdminDashboardResponse_counters
+   GetAdminDashboardResponse_drilldown
+   GetAdminStatisticsResponse
+   GetAdminStatisticsResponseClaimsByStatus
+   GetAdminStatisticsResponseClaimsByStatusDataDatasetsItem
+   GetAdminStatisticsResponseClaimsByStatus_data
+   GetAdminStatisticsResponseClaimsByStatus_drilldown
+   GetPoliciesResponse
+   GetPolicyResponse
+   GetPolicyResponse_claims
+   GetPolicyResponse_policy
+   GetPolicyResponse_policy_insured
+   GetPolicyResponse_policy_validity
+   GetPolicyResponse_policy_vehicle
+   GetTokenDataRequest
+   GetTokenDataResponse
    ResendTokenNotificationRequest
    ResendTokenNotificationResponse
-   AddClaimDamagesRequest
-   AddClaimDamagesResponse
-   AddPolicyRequest
-   AddPolicyResponse
+   UpdateClaimStatusRequest
+   UpdateClaimStatusResponse
    UpdatePolicyRequest
+   UpdatePolicyRequest_insured
+   UpdatePolicyRequest_validity
+   UpdatePolicyRequest_vehicle
    UpdatePolicyResponse
-   DeletePolicyResponse
-   GetPolicyResponse
-   GetPoliciesResponse
-   GetAdminDashboardResponse
-   GetAdminDashboardDrilldownResponse
-   GetAdminStatisticsResponse

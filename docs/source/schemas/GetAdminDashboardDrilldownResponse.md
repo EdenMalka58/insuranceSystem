@@ -1,4 +1,6 @@
+(getadmindashboarddrilldownresponse)=
+
 # GetAdminDashboardDrilldownResponse
 
-| Field | Type | Required |
-|---|---|---|
+| Field | Type | Required | Description |
+|------|------|----------|-------------|

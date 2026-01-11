@@ -1,6 +1,8 @@
+(addclaimdamagesrequest-damageareas)=
+
 # AddClaimDamagesRequest_damageAreas
 
-| Field | Type | Required |
-|---|---|---|
-| area | string | Yes |
-| severity | string | Yes |
+| Field | Type | Required | Description |
+|------|------|----------|-------------|
+| area | string | Yes | Details of area |
+| severity | string | Yes | Details of severity |

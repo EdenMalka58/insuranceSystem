@@ -40,7 +40,7 @@ print(response)
 ## Request Object `AddClaimDamagesRequest`
 | Field | Type | Required | Description |
 |------|------|----------|-------------|
-| `damageAreas` | `array` | Yes | List of damage areas to be added to the claim, including area identifiers and severity levels |
+| `damageAreas` | array of [`DamageAreas`](addclaimdamagesrequest-damageareas) | Yes | List of damage areas to be added to the claim, including area identifiers and severity levels |
 
 ---
 ## Response Object `AddClaimDamagesResponse`
@@ -50,4 +50,4 @@ print(response)
 | `assessmentValue` | `number` | No | Updated assessed value of the claim after adding damage areas |
 | `approvedValue` | `number` | No | Updated approved value of the claim, if already determined |
 | `status` | `string` | No | Current status of the claim after processing damage areas |
-| `damageAreas` | `array` | No | List of all damage areas currently associated with the claim |
+| `damageAreas` | array of [`DamageAreas`](addclaimdamagesrequest-damageareas) | No | List of all damage areas currently associated with the claim |

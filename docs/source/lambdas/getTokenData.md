@@ -43,16 +43,10 @@ print(response)
 _No request body._
 
 ---
-## Response Object `GetAdminStatisticsResponse`
+## Response Object `GetTokenDataResponse`
 | Field | Type | Required | Description |
 |------|------|----------|-------------|
-| `claimsByStatus` | `object` | No | Aggregation of claims grouped by their current status |
-| `claimsByApprovedAction` | `object` | No | Distribution of claims based on approval action type |
-| `claimsOverTime` | `object` | No | Time-based aggregation of claim activity |
-| `approvedValueByMonth` | `object` | No | Monthly aggregation of approved claim values |
-| `policiesOverTime` | `object` | No | Time-based aggregation of policy activity |
-| `claimsByVehicleYear` | `object` | No | Distribution of claims grouped by vehicle manufacturing year |
-| `claimsByVehicleValue` | `object` | No | Distribution of claims grouped by insured vehicle value |
-| `approvalRateByDeductible` | `object` | No | Analysis of approval rates relative to deductible values |
-| `avgClaimCostByVehicleValue` | `object` | No | Average claim cost grouped by vehicle value ranges |
-| `deductibleVsOutcome` | `object` | No | Correlation between deductible values and claim outcomes |
+| `policyNumber` | `string` | No | Identifier of the policy associated with the claim |
+| `claimNumber` | `string` | No | Identifier of the claim for which the notification is resent |
+| `insured` | object of [`insured`](updatepolicyrequest_insured) | No | Insured party personal and contact details |
+| `vehicle` | object [`vehicle`](updatepolicyrequest_vehicle) | No | Vehicle details covered by the policy |

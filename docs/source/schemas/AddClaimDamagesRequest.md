@@ -1,5 +1,7 @@
+(addclaimdamagesrequest)=
+
 # AddClaimDamagesRequest
 
-| Field | Type | Required |
-|---|---|---|
-| damageAreas | array | Yes |
+| Field | Type | Required | Description |
+|------|------|----------|-------------|
+| damageAreas | array of [`AddClaimDamagesRequest_damageAreas`](addclaimdamagesrequest-damageareas) | Yes | Details of damageAreas |

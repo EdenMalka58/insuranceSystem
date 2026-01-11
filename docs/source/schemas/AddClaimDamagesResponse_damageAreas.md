@@ -1,7 +1,9 @@
+(addclaimdamagesresponse_damageareas)=
+
 # AddClaimDamagesResponse_damageAreas
 
-| Field | Type | Required |
-|---|---|---|
-| area | string | No |
-| severity | string | No |
-| estimatedCost | number | No |
+| Field | Type | Required | Description |
+|------|------|----------|-------------|
+| area | string | No | Details of area |
+| severity | string | No | Details of severity |
+| estimatedCost | number | No | Details of estimatedCost |

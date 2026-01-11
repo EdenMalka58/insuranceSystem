@@ -50,7 +50,7 @@ print(response)
 | `description` | `string` | Yes | Description of the damage or incident being claimed |
 | `assessmentValue` | `number` | No | Estimated monetary value of the assessed damage |
 | `approvedValue` | `number` | No | Approved payout value for the claim, if applicable |
-| `damageAreas` | `array` | No | List of damaged areas or components related to the claim |
+| `damageAreas` | array of [`DamageAreas`](addclaimdamagesrequest-damageareas) | No | List of damaged areas or components related to the claim |
 
 ---
 ## Response Object `AddClaimResponse`
@@ -60,3 +60,4 @@ print(response)
 | `claimNumber` | `string` | No | Identifier of the created claim |
 | `policyNumber` | `string` | No | Policy number associated with the claim |
 | `emailSent` | `boolean` | No | Indicates whether a notification email was sent |
+

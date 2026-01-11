@@ -54,10 +54,9 @@ print(response)
 |------|------|----------|-------------|
 | `insuredValue` | `number` | No | Updated insured monetary value of the policy |
 | `deductibleValue` | `number` | No | Updated deductible amount applied to claims under the policy |
-| `insured` | `object` | No | Updated insured person details such as name, email, and phone |
-| `vehicle` | `object` | No | Updated vehicle information associated with the policy |
-| `validity` | `object` | No | Updated policy validity period including start and end dates |
-
+| `insured` | object [`insured`](updatepolicyrequest_insured) | No | Insured party personal and contact details |
+| `vehicle` | object [`vehicle`](updatepolicyrequest_vehicle) | No | Vehicle details covered by the policy |
+| `validity` | object [validity](updatepolicyrequest_validity) | Yes | Policy coverage period including start and 
 ---
 ## Response Object `UpdatePolicyResponse`
 | Field | Type | Required | Description |
