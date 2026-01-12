@@ -13,8 +13,8 @@
             "year": 2024
         },
         "validity": {
-            "end": "2025-12-31",
-            "start": "2025-01-01"
+            "end": "2026-12-31",
+            "start": "2026-01-01"
         },
         "insuredValue": 120000,
         "deductibleValue": 2500,
@@ -84,8 +84,8 @@
         "year": 2023
         },
         "validity": {
-        "start": "2025-01-01",
-        "end": "2025-12-31"
+        "start": "2026-01-01",
+        "end": "2026-12-31"
         },
         "insuredValue": 110000,
         "deductibleValue": 3000,
@@ -122,8 +122,8 @@
         "year": 2024
         },
         "validity": {
-        "start": "2025-02-01",
-        "end": "2026-01-31"
+        "start": "2026-01-01",
+        "end": "2026-12-31"
         },
         "insuredValue": 98000,
         "deductibleValue": 2500,
@@ -160,8 +160,8 @@
         "year": 2024
         },
         "validity": {
-        "start": "2025-01-01",
-        "end": "2025-12-31"
+        "start": "2026-01-01",
+        "end": "2026-12-31"
         },
         "insuredValue": 120000,
         "deductibleValue": 2500,
@@ -199,8 +199,8 @@
         "year": 2023
         },
         "validity": {
-        "start": "2025-02-01",
-        "end": "2026-01-31"
+        "start": "2026-01-01",
+        "end": "2026-12-31"
         },
         "insuredValue": 95000,
         "deductibleValue": 3000,
