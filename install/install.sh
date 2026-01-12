@@ -22,7 +22,7 @@ LAMBDA_FUNCTIONS=(
   getAdminStatistics getTokenData
   addDamageAreas importInsuranceData resendTokenNotification
 )
-
+echo "Installing AWS CLI..."
 
 echo "Create Cognito User Pool (Email sign-in, required attributes)"
 USER_POOL_ID=$(aws cognito-idp create-user-pool \
@@ -36,7 +36,8 @@ USER_POOL_ID=$(aws cognito-idp create-user-pool \
   --username-configuration '{"CaseSensitive":false}' \
   --admin-create-user-config '{"AllowAdminCreateUserOnly":false}' \
   --query "UserPool.Id" \
-  --output text)
+  --output text \
+  2>/dev/null)
 
 echo "User Pool ID: $USER_POOL_ID"
 
@@ -62,7 +63,8 @@ APP_CLIENT_ID=$(aws cognito-idp create-user-pool-client \
   --callback-urls "$CALLBACK_URLS" \
   --logout-urls "$LOGOUT_URLS" \
   --query "UserPoolClient.ClientId" \
-  --output text)
+  --output text \
+  2>/dev/null)
 
 echo "App Client ID: $APP_CLIENT_ID"
 
@@ -71,18 +73,21 @@ aws cognito-idp create-user-pool-domain \
     --domain $DOMAIN_PREFIX \
     --user-pool-id $USER_POOL_ID \
     --region $REGION \
-    --managed-login-version 2
+    --managed-login-version 2 \
+    > /dev/null 2>&1
 
 echo "Create User Pool Groups"
 aws cognito-idp create-group \
   --region $REGION \
   --user-pool-id $USER_POOL_ID \
-  --group-name admin
+  --group-name admin \
+  > /dev/null 2>&1
 
 aws cognito-idp create-group \
   --region $REGION \
   --user-pool-id $USER_POOL_ID \
-  --group-name agent
+  --group-name agent \
+  > /dev/null 2>&1
 
 echo "Create Users (with email + nickname)"
 aws cognito-idp admin-create-user \
@@ -93,7 +98,8 @@ aws cognito-idp admin-create-user \
       Name=email,Value=$ADMIN_EMAIL \
       Name=email_verified,Value=true \
       Name=nickname,Value=eden \
-  --message-action SUPPRESS
+  --message-action SUPPRESS \
+  > /dev/null 2>&1
 
 aws cognito-idp admin-create-user \
   --region $REGION \
@@ -103,7 +109,8 @@ aws cognito-idp admin-create-user \
       Name=email,Value=$AGENT_EMAIL \
       Name=email_verified,Value=true \
       Name=nickname,Value=sahar \
-  --message-action SUPPRESS
+  --message-action SUPPRESS \
+  > /dev/null 2>&1
 
 echo "Set Permanent Passwords"
 aws cognito-idp admin-set-user-password \
@@ -111,39 +118,45 @@ aws cognito-idp admin-set-user-password \
   --user-pool-id $USER_POOL_ID \
   --username $ADMIN_EMAIL \
   --password "$PASSWORD" \
-  --permanent
+  --permanent \
+  > /dev/null 2>&1
 
 aws cognito-idp admin-set-user-password \
   --region $REGION \
   --user-pool-id $USER_POOL_ID \
   --username $AGENT_EMAIL \
   --password "$PASSWORD" \
-  --permanent
+  --permanent \
+  > /dev/null 2>&1
 
 echo "Assign Users to Groups"
 aws cognito-idp admin-add-user-to-group \
   --region $REGION \
   --user-pool-id $USER_POOL_ID \
   --username $ADMIN_EMAIL \
-  --group-name admin
+  --group-name admin \
+  > /dev/null 2>&1
 
 aws cognito-idp admin-add-user-to-group \
   --region $REGION \
   --user-pool-id $USER_POOL_ID \
   --username $AGENT_EMAIL \
-  --group-name agent
+  --group-name agent \
+  > /dev/null 2>&1
 
 
 echo "Add lambdas layers"
 aws lambda publish-layer-version \
     --layer-name auth-layer \
     --zip-file fileb://auth-layer.zip \
-    --compatible-runtimes python3.14
+    --compatible-runtimes python3.14 \
+    > /dev/null 2>&1
 
 aws lambda publish-layer-version \
     --layer-name response-layer \
     --zip-file fileb://response-layer.zip \
-    --compatible-runtimes python3.14
+    --compatible-runtimes python3.14 \
+    > /dev/null 2>&1
 
 echo "Add lambdas functions"
 for FUNC in "${LAMBDA_FUNCTIONS[@]}"; do
@@ -153,7 +166,8 @@ for FUNC in "${LAMBDA_FUNCTIONS[@]}"; do
     --runtime python3.14 \
     --role arn:aws:iam::"$ACCOUNT_ID":role/LabRole \
     --handler $FUNC.handler \
-    --zip-file fileb://$FUNC.zip
+    --zip-file fileb://$FUNC.zip \
+    > /dev/null 2>&1
 done
 
 echo "Set lambdas functions layers"
@@ -161,7 +175,8 @@ for FUNC in "${LAMBDA_FUNCTIONS[@]}"; do
   echo "Adding layers to $FUNC ..."
   aws lambda update-function-configuration \
     --function-name $FUNC \
-    --layers arn:aws:lambda:us-east-1:"$ACCOUNT_ID":layer:auth-layer:1 arn:aws:lambda:us-east-1:"$ACCOUNT_ID":layer:response-layer:1
+    --layers arn:aws:lambda:us-east-1:"$ACCOUNT_ID":layer:auth-layer:1 arn:aws:lambda:us-east-1:"$ACCOUNT_ID":layer:response-layer:1 \
+    > /dev/null 2>&1
 done
 
 echo "Set addClaim lambda environment variables"
@@ -173,11 +188,8 @@ echo "Updating environment variables for Lambda: $FUNCTION_NAME"
 
 aws lambda update-function-configuration \
   --function-name "$FUNCTION_NAME" \
-  --environment "Variables={
-    S3_BUCKET_NAME=$BUCKET_NAME,
-    S3_OBJECT_PATH=$DAMAGES_PAGE_PATH
-  }" \
-  --output text > /dev/null
+  --environment "Variables={S3_BUCKET_NAME=$BUCKET_NAME,S3_OBJECT_PATH=$DAMAGES_PAGE_PATH}" \
+  > /dev/null 2>&1
 
 echo "Environment variables updated successfully"
 
@@ -214,14 +226,15 @@ aws dynamodb create-table \
       "Projection": { "ProjectionType": "ALL" }
     }
   ]' \
-  --output text > /dev/null
+  > /dev/null 2>&1
 
 echo "Create Dynamo DB database is in process..."
 aws dynamodb wait table-exists --table-name InsuranceSystem
 
 aws dynamodb update-time-to-live \
   --table-name InsuranceSystem \
-  --time-to-live-specification "Enabled=true,AttributeName=expiresAt"
+  --time-to-live-specification "Enabled=true,AttributeName=expiresAt" \
+  > /dev/null 2>&1
 
 
 echo "Import records to database..."
@@ -229,12 +242,14 @@ aws lambda invoke \
   --function-name importInsuranceData \
   --cli-binary-format raw-in-base64-out \
   --payload fileb://policy.json \
-  response.json
+  response.json \
+  > /dev/null 2>&1
 
 echo "Create S3 bucket"
 aws s3api create-bucket \
   --bucket $BUCKET_NAME \
-  --region us-east-1
+  --region us-east-1 \
+  > /dev/null 2>&1
 
 echo "Extract website.zip and Upload into S3"
 unzip website.zip -d website
@@ -248,7 +263,9 @@ aws s3api put-public-access-block \
         "IgnorePublicAcls": false,
         "BlockPublicPolicy": false,
         "RestrictPublicBuckets": false
-    }'
+    }' \
+    > /dev/null 2>&1
+
 aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy '{
   "Version": "2012-10-17",
   "Statement": [{
@@ -258,7 +275,8 @@ aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy '{
     "Action": "s3:GetObject",
     "Resource": "arn:aws:s3:::'"$BUCKET_NAME"'/*"
   }]
-}'
+}' \
+> /dev/null 2>&1
 
 echo "Import API getaway file"
 echo "Replacing Lambda Account and user poll ID in OpenAPI file..."
@@ -271,7 +289,8 @@ API_ID=$(aws apigateway import-rest-api \
   --no-cli-pager \
   --no-fail-on-warnings \
   --query id \
-  --output text)
+  --output text \
+  2>/dev/null)
 
 echo "Created API Gateway with ID: $API_ID"
 
@@ -282,18 +301,21 @@ for FUNC in "${LAMBDA_FUNCTIONS[@]}"; do
     --statement-id apigw-$API_ID-$FUNC \
     --action lambda:InvokeFunction \
     --principal apigateway.amazonaws.com \
-    --source-arn arn:aws:execute-api:$REGION:$ACCOUNT_ID:$API_ID/*/*/*
+    --source-arn arn:aws:execute-api:$REGION:$ACCOUNT_ID:$API_ID/*/*/* \
+    > /dev/null 2>&1
 done
 
 echo "Deploying prod stage..."
 aws apigateway create-deployment \
   --rest-api-id $API_ID \
-  --stage-name prod
+  --stage-name prod \
+  > /dev/null 2>&1
 
 CLIENT_ID=$(aws cognito-idp list-user-pool-clients \
   --user-pool-id $USER_POOL_ID \
   --query "UserPoolClients[0].ClientId" \
-  --output text)
+  --output text \
+  2>/dev/null)
 
 COGNITO_DOMAIN_FULL="https://${DOMAIN_PREFIX}.auth.us-east-1.amazoncognito.com"
 INVOKE_URL="https://$API_ID.execute-api.$REGION.amazonaws.com/prod"
