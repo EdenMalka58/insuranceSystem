@@ -13,7 +13,6 @@
 2. ## Run the installation batch process
     Open CloudShell terminal and upload install.zip and extract files and run the installation process using these commands:
     unzip install.zip -d .
-    IMPORTANT! replace the ACCOUNT_ID in install.sh to your account id
     sudo yum install dos2unix -y
     dos2unix install.sh
     chmod +x install.sh
