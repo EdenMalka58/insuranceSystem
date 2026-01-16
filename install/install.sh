@@ -1,6 +1,6 @@
 VERSION="v01"
 REGION="us-east-1"
-ACCOUNT_ID="263015886377" #MUST BE REPLACED !!!
+ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 USER_POOL_NAME="InsuranceSystemUserPool-$VERSION"
 APP_CLIENT_NAME="InsuranceSystemSPAClient-$VERSION"
 BUCKET_NAME="insurance-claim-damage-pages-$VERSION"
