@@ -233,8 +233,8 @@ async function savePolicy() {
       cancelForm();
       loadPolicies();
     },
-    function () {
-      showAlert("Error saving policy", "error", "Error");
+    function (error) {
+        showAlert(error.error, "error", "Error opening policy");
     },
     $("#save-policy-btn")
   );
