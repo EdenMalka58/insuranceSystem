@@ -3,7 +3,7 @@ import boto3
 from datetime import datetime
 from auth import require_agent
 from response import ok, error
-
+from botocore.exceptions import ClientError
 
 dynamo = boto3.resource("dynamodb")
 table = dynamo.Table("InsuranceSystem")
@@ -59,11 +59,23 @@ def handler(event, context):
             "GSI1SK": f"POLICY#{policy_number}"  # Sort Key for user's policies
         }
 
-        table.put_item(Item=item)
+        table.put_item(
+            Item=item,
+            ConditionExpression="attribute_not_exists(PK)"
+        )
+        
         return ok({
             "message": "Policy created successfully", "policyNumber": policy_number
         })
 
+    except ClientError as e:
+        error_code = e.response["Error"]["Code"]
+
+        if error_code == "ConditionalCheckFailedException":
+            return error(409, "Policy already exists")
+
+        # Any other DynamoDB error
+        return error(500, "DynamoDB error")        
     except Exception as e:
         return error(500, "Internal sever error")
 # request
